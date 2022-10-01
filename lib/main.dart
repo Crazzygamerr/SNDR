@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:developer' as developer;
 
 void main() => runApp(const MyApp());
 
@@ -54,7 +55,33 @@ class _MyBodyState extends State<Body> {
 
   String? tempFileUri;
   TextEditingController textEditingController = TextEditingController();
+
+  Map<String, dynamic> questionForm = {
+    "questions": [
+      {
+        "id": 1,
+        "question": "What is your name?",
+      },
+      {
+        "id": 2,
+        "question": "What is your age?",
+      }
+    ]
+  };
   
+  Map<String, dynamic> answerForm = {
+    "answers": [
+      {
+        "id": 1,
+        "answer": "John",
+      },
+      {
+        "id": 2,
+        "answer": 20,
+      }
+    ]
+  };
+
   @override
   void initState() {
     super.initState();
@@ -167,6 +194,20 @@ class _MyBodyState extends State<Body> {
                   });
                 },
               ),
+              
+            ElevatedButton(
+              child: const Text("Disconnect All"),
+              onPressed: () async {
+                Nearby().stopDiscovery().then((value) => {
+                  connectedDevices.forEach((key, value) {
+                    Nearby().disconnectFromEndpoint(key);
+                  }),
+                  setState(() {
+                    connectedDevices = {};
+                  })
+                });
+              },
+            ),
 
             const Divider(),
             const Text("Available Devices"),
@@ -180,8 +221,13 @@ class _MyBodyState extends State<Body> {
                     Nearby().requestConnection(
                       userName,
                       key,
-                      onConnectionInitiated: (id, info) {
-                        onConnectionInit(id, info);
+                      onConnectionInitiated: (id, info) async {
+                        setState(() {
+                          connectedDevices[id] = info;
+                          foundDevices.remove(id);
+                        });
+                        await acceptConnection(id);
+                        Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(answerForm))));
                       },
                       onConnectionResult: (id, status) {
                         showSnackbar(status);
@@ -211,15 +257,24 @@ class _MyBodyState extends State<Body> {
                 title: Text(connectedDevices[key]!.endpointName),
                 subtitle: Text(key),
                 trailing: ElevatedButton(
-                  child: const Text("Disconnect"),
+                  child: const Text("Send JSON"),
                   onPressed: () async {
-                    // await Nearby().sendBytesPayload(key, Uint8List.fromList("Hello World".codeUnits));
-                    await Nearby().disconnectFromEndpoint(key);
-                    setState(() {
-                      connectedDevices.remove(key);
-                    });
+                    await Nearby().sendBytesPayload(
+                      key,
+                      Uint8List.fromList(utf8.encode(jsonEncode(questionForm))),
+                    );
                   },
                 ),
+                // ElevatedButton(
+                //       child: const Text("Disconnect"),
+                //       onPressed: () async {
+                //         // await Nearby().sendBytesPayload(key, Uint8List.fromList("Hello World".codeUnits));
+                //         await Nearby().disconnectFromEndpoint(key);
+                //         setState(() {
+                //           connectedDevices.remove(key);
+                //         });
+                //       },
+                //     ),
               );
             }).toList(),
             const Divider(),
@@ -318,7 +373,13 @@ class _MyBodyState extends State<Body> {
       bool a = await Nearby().startAdvertising(
         userName,
         strategy,
-        onConnectionInitiated: onConnectionInit,
+        onConnectionInitiated: (id, info) async {
+          setState(() {
+            connectedDevices[id] = info;
+            foundDevices.remove(id);
+          });
+          await acceptConnection(id);
+        },
         onConnectionResult: (id, status) {
           showSnackbar(status);
         },
@@ -404,101 +465,106 @@ class _MyBodyState extends State<Body> {
   
   /// Called upon Connection request (on both devices)
   /// Both need to accept connection to start sending/receiving
-  void onConnectionInit(String id, ConnectionInfo info) {
-    showModalBottomSheet(
-      context: context,
-      builder: (builder) {
-        return Container(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Text(
-                "Connection Info:",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text("id: $id"),
-              Text("Token: ${info.authenticationToken}"),
-              Text("Name: ${info.endpointName}"),
-              Text("Incoming: ${info.isIncomingConnection}"),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    child: const Text("Reject Connection"),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      try {
-                        await Nearby().rejectConnection(id);
-                      } catch (e) {
-                        showSnackbar(e);
-                      }
-                    },
-                  ),
-                  ElevatedButton(
-                    child: const Text("Accept Connection"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        connectedDevices[id] = info;
-                        foundDevices.remove(id);
-                      });
-                      acceptConnection(id);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
   
-  void acceptConnection(id) {
-    Nearby().acceptConnection(
+  // void onConnectionInit(String id, ConnectionInfo info) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (builder) {
+  //       return Container(
+  //         padding: const EdgeInsets.all(10),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: <Widget>[
+  //             const Text(
+  //               "Connection Info:",
+  //               style: TextStyle(
+  //                 fontSize: 20,
+  //               ),
+  //             ),
+  //             const SizedBox(
+  //               height: 10,
+  //             ),
+  //             Text("id: $id"),
+  //             Text("Token: ${info.authenticationToken}"),
+  //             Text("Name: ${info.endpointName}"),
+  //             Text("Incoming: ${info.isIncomingConnection}"),
+  //             const SizedBox(
+  //               height: 20,
+  //             ),
+  //             Row(
+  //               mainAxisSize: MainAxisSize.max,
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 ElevatedButton(
+  //                   child: const Text("Reject Connection"),
+  //                   onPressed: () async {
+  //                     Navigator.pop(context);
+  //                     try {
+  //                       await Nearby().rejectConnection(id);
+  //                     } catch (e) {
+  //                       showSnackbar(e);
+  //                     }
+  //                   },
+  //                 ),
+  //                 ElevatedButton(
+  //                   child: const Text("Accept Connection"),
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                     setState(() {
+  //                       connectedDevices[id] = info;
+  //                       foundDevices.remove(id);
+  //                     });
+  //                     acceptConnection(id);
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  
+  Future<bool> acceptConnection(id) async {
+    await Nearby().acceptConnection(
       id,
       onPayLoadRecieved: (endid, payload) async {
         if (payload.type == PayloadType.BYTES) {
           String str = String.fromCharCodes(payload.bytes!);
-          showSnackbar("$endid: $str");
+          // showSnackbar("$endid: $str");
           setState(() {
             messages.add("${connectedDevices[endid]!.endpointName}: $str");
           });
-
-          if (str.contains(':')) {
-            // used for file payload as file payload is mapped as
-            // payloadId:filename
-            int payloadId = int.parse(str.split(':')[0]);
-            String fileName = (str.split(':')[1]);
-
-            if (map.containsKey(payloadId)) {
-              if (tempFileUri != null) {
-                moveFile(tempFileUri!, fileName);
-              } else {
-                showSnackbar("File doesn't exist");
-              }
-            } else {
-              //add to map if not already
-              map[payloadId] = fileName;
-            }
+          // developer.log(jsonDecode(str).toString());
+          if(nearbyState == NearbyState.isAdvertising) {
+            await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(questionForm))));
           }
+
+          // if (str.contains(':')) {
+          //   // used for file payload as file payload is mapped as
+          //   // payloadId:filename
+          //   int payloadId = int.parse(str.split(':')[0]);
+          //   String fileName = (str.split(':')[1]);
+
+          //   if (map.containsKey(payloadId)) {
+          //     if (tempFileUri != null) {
+          //       moveFile(tempFileUri!, fileName);
+          //     } else {
+          //       showSnackbar("File doesn't exist");
+          //     }
+          //   } else {
+          //     //add to map if not already
+          //     map[payloadId] = fileName;
+          //   }
+          // }
         } else if (payload.type == PayloadType.FILE) {
           showSnackbar("$endid: File transfer started");
           tempFileUri = payload.uri;
         }
       },
-      onPayloadTransferUpdate: (endid, payloadTransferUpdate) {
+      onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
         if (payloadTransferUpdate.status ==
                 PayloadStatus.IN_PROGRESS) {
           print(payloadTransferUpdate.bytesTransferred);
@@ -510,7 +576,13 @@ class _MyBodyState extends State<Body> {
                 PayloadStatus.SUCCESS) {
           showSnackbar(
                   "$endid success, total bytes = ${payloadTransferUpdate.totalBytes}");
-
+                  
+          if(nearbyState == NearbyState.isAdvertising) {
+            await Nearby().disconnectFromEndpoint(id);
+            setState(() {
+              connectedDevices.remove(id);
+            });
+          }
           if (map.containsKey(payloadTransferUpdate.id)) {
             //rename the file now
             String name = map[payloadTransferUpdate.id]!;
@@ -522,5 +594,6 @@ class _MyBodyState extends State<Body> {
         }
       },
     );
+    return true;
   }
 }
