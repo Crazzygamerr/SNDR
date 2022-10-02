@@ -95,8 +95,10 @@ class NearbyService with ChangeNotifier {
         if(status == Status.CONNECTED) {
           // connectedDevice?.endpointName = id;
           connectedDevices[id]?.endpointName = id;
-          developer.log(jsonEncode(response));
+          // developer.log(jsonEncode(response));
           Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
+          payloads.removeAt(0);
+          notifyListeners();
         } else {
           // connectedDevice = null;
           // developer.log(status.toString());
@@ -165,7 +167,7 @@ class NearbyService with ChangeNotifier {
         onPayLoadRecieved: (endid, pload) async {
           if (pload.type == PayloadType.BYTES) {
             String str = String.fromCharCodes(pload.bytes!);
-            developer.log(str);
+            // developer.log(str);
             var payload = jsonDecode(jsonDecode(str));
             // developer.log();
             if(payload.containsKey('content')) {
@@ -191,7 +193,7 @@ class NearbyService with ChangeNotifier {
           }
         },
         onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
-          developer.log(payloadTransferUpdate.status.toString());
+          // developer.log(payloadTransferUpdate.status.toString());
         },
       ).catchError((e) {
         connectedDevices.remove(id);
