@@ -47,3 +47,4 @@ app.*.map.json
 /android/app/release
 .vscode/launch.json
 macos/Flutter/GeneratedPluginRegistrant.swift
+*.swift

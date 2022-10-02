@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 
 class TempPage extends StatefulWidget {
@@ -92,6 +93,7 @@ class TempPageState extends State<TempPage> {
               ElevatedButton(
                 child: const Text("Start Advertising"),
                 onPressed: () async {
+                  // NearbyService().startAdvertising();
                   bool b = await startAdvertising();
                   if(b) {
                     setState(() {
@@ -104,13 +106,14 @@ class TempPageState extends State<TempPage> {
               ElevatedButton(
                 child: const Text("Start Discovery"),
                 onPressed: () async {
-                  bool b = await startDiscovering();
-                  if(b) {
-                    setState(() {
-                      nearbyState = NearbyState.isDiscovering;
-                      foundDevices = {};
-                    });
-                  }
+                  NearbyService().startDiscovery();
+                  // bool b = await startDiscovering();
+                  // if(b) {
+                  //   setState(() {
+                  //     nearbyState = NearbyState.isDiscovering;
+                  //     foundDevices = {};
+                  //   });
+                  // }
                 },
               ),
             if(nearbyState == NearbyState.isAdvertising)
@@ -141,10 +144,7 @@ class TempPageState extends State<TempPage> {
             ElevatedButton(
               child: const Text("Disconnect All"),
               onPressed: () async {
-                Nearby().stopDiscovery().then((value) => {
-                  connectedDevices.forEach((key, value) {
-                    Nearby().disconnectFromEndpoint(key);
-                  }),
+                Nearby().stopAllEndpoints().then((value) => {
                   setState(() {
                     connectedDevices = {};
                   })
@@ -154,9 +154,9 @@ class TempPageState extends State<TempPage> {
 
             const Divider(),
             const Text("Available Devices"),
-            ...foundDevices.keys.map((key) {
+            ...context.watch<NearbyService>().foundDevices.keys.map((key) {
               return ListTile(
-                title: Text(foundDevices[key]!),
+                title: Text(foundDevices[key] ?? ""),
                 subtitle: Text(key),
                 trailing: ElevatedButton(
                   child: const Text("Connect"),
@@ -194,9 +194,9 @@ class TempPageState extends State<TempPage> {
 
             const Divider(),
             const Text("Connected Devices"),
-            ...connectedDevices.keys.map((key) {
+            ...context.watch<NearbyService>().connectedDevices.keys.map((key) {
               return ListTile(
-                title: Text(connectedDevices[key]!.endpointName),
+                title: Text(connectedDevices[key]?.endpointName ?? ""),
                 subtitle: Text(key),
                 trailing: ElevatedButton(
                   child: const Text("Send JSON"),
@@ -249,7 +249,7 @@ class TempPageState extends State<TempPage> {
         onConnectionInitiated: (id, info) async {
           setState(() {
             connectedDevices[id] = info;
-            foundDevices.remove(id);
+            // foundDevices.remove(id);
           });
           await acceptConnection(id);
         },
@@ -272,32 +272,32 @@ class TempPageState extends State<TempPage> {
     }
   }
   
-  Future<bool> startDiscovering() async {
-    try {
-      bool a = await Nearby().startDiscovery(
-        userName,
-        strategy,
-        onEndpointFound: (id, name, serviceId) {
-          if (foundDevices.containsKey(id) || connectedDevices.containsKey(id)) return;
-          setState(() {
-            foundDevices[id] = name;
-          });
-        },
-        onEndpointLost: (id) {
-          setState(() {
-            foundDevices.remove(id);           
-          });
-          showSnackbar(
-                  "Lost discovered Endpoint: ${connectedDevices[id]!.endpointName}, id $id");
-        },
-      );
-      showSnackbar("DISCOVERING: $a");
-      return a;
-    } catch (e) {
-      showSnackbar(e);
-      return false;
-    }
-  }
+  // Future<bool> startDiscovering() async {
+  //   try {
+  //     bool a = await Nearby().startDiscovery(
+  //       userName,
+  //       strategy,
+  //       onEndpointFound: (id, name, serviceId) {
+  //         if (foundDevices.containsKey(id) || connectedDevices.containsKey(id)) return;
+  //         setState(() {
+  //           foundDevices[id] = name;
+  //         });
+  //       },
+  //       onEndpointLost: (id) {
+  //         setState(() {
+  //           foundDevices.remove(id);           
+  //         });
+  //         showSnackbar(
+  //                 "Lost discovered Endpoint: ${connectedDevices[id]!.endpointName}, id $id");
+  //       },
+  //     );
+  //     showSnackbar("DISCOVERING: $a");
+  //     return a;
+  //   } catch (e) {
+  //     showSnackbar(e);
+  //     return false;
+  //   }
+  // }
   
   /// Called upon Connection request (on both devices)
   /// Both need to accept connection to start sending/receiving
@@ -374,9 +374,13 @@ class TempPageState extends State<TempPage> {
             messages.add("${connectedDevices[endid]!.endpointName}: $str");
           });
           // developer.log(jsonDecode(str).toString());
-          if(nearbyState == NearbyState.isAdvertising) {
+          if(nearbyState == NearbyState.isAdvertising && !jsonDecode(str).containsKey("responses")){
             await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(questionForm))));
           }
+          await Nearby().disconnectFromEndpoint(id);
+          setState(() {
+            connectedDevices.remove(id);
+          });
 
           // if (str.contains(':')) {
           //   // used for file payload as file payload is mapped as
@@ -414,10 +418,10 @@ class TempPageState extends State<TempPage> {
                   "$endid success, total bytes = ${payloadTransferUpdate.totalBytes}");
                   
           if(nearbyState == NearbyState.isAdvertising) {
-            await Nearby().disconnectFromEndpoint(id);
-            setState(() {
-              connectedDevices.remove(id);
-            });
+            // await Nearby().disconnectFromEndpoint(id);
+            // setState(() {
+            //   connectedDevices.remove(id);
+            // });
           }
           if (map.containsKey(payloadTransferUpdate.id)) {
             //rename the file now

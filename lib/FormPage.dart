@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
@@ -12,7 +14,8 @@ class FormPage extends StatefulWidget {
 class FormPageState extends State<FormPage> {
   
   Map<String, dynamic> response = {
-    "responses": [
+    "type": "response",
+    "content": [
       {
         "id": 1,
         "answer": "John",
@@ -24,15 +27,26 @@ class FormPageState extends State<FormPage> {
     ]
   };
   
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   response["device_id"] = context.read<NearbyService>().userName;
+  // }
+  
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(context.watch<NearbyService>().payload.toString()),
+        Text(context.watch<NearbyService>().payloads[0].toString()),
         Text(response.toString()),
         ElevatedButton(
           onPressed: () {
-            NearbyService().sendPayload(response);
+            if(context.read<NearbyService>().payloads[0].containsKey("device_id")){
+              NearbyService().requestConnection(
+                context.read<NearbyService>().payloads[0]['device_id'].toString(), 
+                jsonEncode(response)
+              );
+            }
           },
           child: const Text('Send'),
         ),

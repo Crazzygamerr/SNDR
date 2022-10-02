@@ -8,23 +8,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum NearbyState { isIdle, isAdvertising, isDiscovering, isConnected }
+enum NearbyState { isIdle, isAdvertising, isDiscovering }
 
 class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
   factory NearbyService() => _instance;
   NearbyService._internal();
   
-  NearbyState nearbyState = NearbyState.isIdle;
+  // NearbyState nearbyState = NearbyState.isIdle;
+  bool isAdvertising = false, isDiscovering = false;
   final Strategy strategy = Strategy.P2P_STAR;
   final String userName = Random().nextInt(10000).toString();
   
   Map<String, String> foundDevices = {};
-  // Map<String, ConnectionInfo> connectedDevices = {};
-  ConnectionInfo? connectedDevice;
-  // PageController pageController = PageController();
+  Map<String, ConnectionInfo> connectedDevices = {};
+  // ConnectionInfo? connectedDevice;
+  PageController pageController = PageController();
   
-  Map<String, dynamic> payload = {};
+  List<Map<String, dynamic>> payloads = [{}];
   
   // NearbyService.page(PageController pageController) {
   //   addListener(() {
@@ -50,14 +51,15 @@ class NearbyService with ChangeNotifier {
   
   Future<String> startDiscovery() async {
     try {
+      await Nearby().stopDiscovery();
       bool a = await Nearby().startDiscovery(
         userName,
         strategy,
         onEndpointFound: (id, name, serviceId) {
           if (
             foundDevices.containsKey(id) 
-            // || connectedDevices.containsKey(id)
-            || connectedDevice?.endpointName == id
+            || connectedDevices.containsKey(id)
+            // || connectedDevices?.endpointName == id
             ) return;
           foundDevices[id] = name;
           developer.log('Found device: $name');
@@ -68,6 +70,9 @@ class NearbyService with ChangeNotifier {
           notifyListeners();
         },
       );
+      isDiscovering = a;
+      foundDevices = {};
+      notifyListeners();
       return a.toString();
     } catch (e) {
       return e.toString();
@@ -75,33 +80,77 @@ class NearbyService with ChangeNotifier {
   }
   
   Future<bool> requestConnection(String key, String response) async {
-    Nearby().requestConnection(
-      userName,
-      key,
-      onConnectionInitiated: (id, info) async {
-        // connectedDevices[id] = info;
-        connectedDevice = info;
-        notifyListeners();
-        bool b = await acceptConnection(id);
-        if(b) {
-          Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
-        }
-      },
-      onConnectionResult: (id, status) {
-        if(status == Status.CONNECTED) {
-          connectedDevice?.endpointName = id;
-        } else {
-          connectedDevice = null;
-        }
-        notifyListeners();
-      },
-      onDisconnected: (id) {
-        // connectedDevices.remove(id);
-        connectedDevice = null;
-        notifyListeners();
-      },
-    );
+    try {
+      Nearby().requestConnection(
+        userName,
+        key,
+        onConnectionInitiated: (id, info) async {
+          connectedDevices[id] = info;
+          // connectedDevice = info;
+          notifyListeners();
+          await acceptConnection(id);
+        },
+        onConnectionResult: (id, status) async {
+          if(status == Status.CONNECTED) {
+            // connectedDevice?.endpointName = id;
+            connectedDevices[id]?.endpointName = id;
+            developer.log(jsonEncode(response));
+            Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
+          } else {
+            // connectedDevice = null;
+            connectedDevices.remove(id);
+          }
+          notifyListeners();
+        },
+        onDisconnected: (id) {
+          connectedDevices.remove(id);
+          // connectedDevice = null;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      foundDevices.remove(key);
+      notifyListeners();
+      return false;
+    }
     return true;
+  }
+  
+  Future<bool> startAdvertising(Map<String, dynamic> form) async {
+    await Nearby().stopAdvertising();
+    try {
+      await Nearby().stopAdvertising();
+      bool a = await Nearby().startAdvertising(
+        userName,
+        strategy,
+        onConnectionInitiated: (id, info) async {
+          connectedDevices[id] = info;
+          // connectedDevice = info;
+          notifyListeners();
+          await acceptConnection(id, jsonEncode(form));
+        },
+        onConnectionResult: (id, status) async {
+          if(status == Status.CONNECTED) {
+            // connectedDevice?.endpointName = id;
+            connectedDevices[id]?.endpointName = id;
+          } else {
+            // connectedDevice = null;
+            connectedDevices.remove(id);
+          }
+          notifyListeners();
+        },
+        onDisconnected: (id) {
+          connectedDevices.remove(id);
+          // connectedDevice = null;
+          notifyListeners();
+        },
+      );
+      isAdvertising = a;
+      notifyListeners();
+      return a;
+    } catch (e) {
+      return false;
+    }
   }
   
   Future<bool> acceptConnection(
@@ -113,43 +162,78 @@ class NearbyService with ChangeNotifier {
       onPayLoadRecieved: (endid, pload) async {
         if (pload.type == PayloadType.BYTES) {
           String str = String.fromCharCodes(pload.bytes!);
-          payload = jsonDecode(str);
-          notifyListeners();
-          
-          if(nearbyState == NearbyState.isAdvertising && !payload.containsKey('type')) {
+          developer.log(str);
+          var payload = jsonDecode(jsonDecode(str));
+          // developer.log();
+          if(payload.containsKey('content')) {
+            payload["device_id"] = endid;
+            payloads.insert(0, payload);
+            notifyListeners();
+          } else if(isAdvertising){
             await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
           }
+          if(isDiscovering){
+            await Nearby().disconnectFromEndpoint(id);
+            connectedDevices.remove(id);
+            notifyListeners();
+          }
+          // if(nearbyState == NearbyState.isDiscovering) {
+          //   await Nearby().disconnectFromEndpoint(id);
+          // }
+          // if(nearbyState == NearbyState.isAdvertising && !payload.containsKey('type')) {
+          //   await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
+          // }
         } else if (pload.type == PayloadType.FILE) {
           // tempFileUri = payload.uri;
         }
       },
       onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
-        
+        developer.log(payloadTransferUpdate.status.toString());
       },
     );
     return true;
   }
   
-  Future<bool> sendPayload(dynamic payload) async {
-    if(connectedDevice != null) {
-      String s;
-      if (payload is String) {
-        s = payload;
-      } else if (payload is Map) {
-        s = jsonEncode(payload);
-      } else {
-        return false;
-      }
-      await Nearby().sendBytesPayload(connectedDevice!.endpointName, Uint8List.fromList(utf8.encode(s)));
-      return true;
-    } else {
-      return false;
-    }
+  Future<void> stopAdvertising() async {
+    await Nearby().stopAdvertising();
+    isAdvertising = false;
+    notifyListeners();
   }
   
-  // void pageCon() {
-  //   if(payload.containsKey('type') && pageController.hasClients) {
-  //     // pageController.jumpToPage();
+  Future<void> stopDiscovery() async {
+    await Nearby().stopDiscovery();
+    isDiscovering = false;
+    foundDevices = {};
+    notifyListeners();
+  }
+  
+  Future<void> disconnectFromEndpoint(String id) async {
+    await Nearby().disconnectFromEndpoint(id);
+    connectedDevices.remove(id);
+    notifyListeners();
+  }
+  
+  Future<void> stopAllEndpoints() async {
+    await Nearby().stopAllEndpoints();
+    connectedDevices = {};
+    notifyListeners();
+  }
+  
+  // Future<bool> sendPayload(dynamic payload) async {
+  //   if(connectedDevice != null) {
+  //     String s;
+  //     if (payload is String) {
+  //       s = payload;
+  //     } else if (payload is Map) {
+  //       s = jsonEncode(payload);
+  //     } else {
+  //       return false;
+  //     }
+  //     await Nearby().sendBytesPayload(connectedDevice!.endpointName, Uint8List.fromList(utf8.encode(s)));
+  //     return true;
+  //   } else {
+  //     return false;
   //   }
   // }
+  
 }

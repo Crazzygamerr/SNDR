@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:sdl/NearbyService.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +45,14 @@ class DevicesState extends State<Devices> {
             subtitle: Text(key),
             onTap: () {
               // connect to device
-              NearbyService().requestConnection(key, "{}");
+              NearbyService().requestConnection(
+                key, 
+                "{}"
+                // jsonEncode({
+                //   "type": "request",
+                //   "device_id": context.read<NearbyService>().userName,
+                // })
+              );
             },
           );
         },
