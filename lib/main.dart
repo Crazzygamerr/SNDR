@@ -81,6 +81,16 @@ class PageViewWidgetState extends State<PageViewWidget> {
         } else {
           // pageController.jumpToPage(1);
         }
+        
+        context.read<NearbyService>().addListener(() {
+          if(context.read<NearbyService>().error != null) {
+            Provider.of<NearbyService>(context, listen: false).error = null;
+            Provider.of<NearbyService>(context, listen: false).payloads.insert(0, {});
+            Provider.of<NearbyService>(context, listen: false).foundDevices = {};
+            NearbyService().stopAllEndpoints();
+            NearbyService().startDiscovery();
+          }
+        });
       });
     });
   }
