@@ -17,9 +17,17 @@ class RoomsState extends State<Rooms> {
     init();    
   }
   
-  void init() async {
+  void init() {
+    initialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NearbyService>().payloads = [{}];
+    });
+  }
+  
+  void initialize() async {
     bool b = await NearbyService().requestPermissions();
     if(b) {
+      await NearbyService().stopAllEndpoints();
       String s = await NearbyService().startDiscovery();
       if(s != 'true') {
         showSnackbar(s);
@@ -27,9 +35,26 @@ class RoomsState extends State<Rooms> {
     }
   }
   
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   // context.read<NearbyService>().addListener(changeRoute);
+    
+  // }
+  
+  // void changeRoute() {
+  //   if(context.read<NearbyService>().payloads[0].containsKey('content')
+  //     && context.read<NearbyService>().isDiscovering
+  //     && ModalRoute.of(context)!.settings.name != '/responsePage'
+  //     ){
+  //       Navigator.pushNamed(context, '/responsePage');
+  //     }
+  // }
+  
   @override
   void dispose() {
     NearbyService().stopDiscovery();
+    // context.read<NearbyService>().removeListener(changeRoute);
     super.dispose();
   }
   
@@ -62,6 +87,7 @@ class RoomsState extends State<Rooms> {
                   //   "device_id": context.read<NearbyService>().userName,
                   // })
                 );
+                Navigator.pushNamed(context, '/responsePage');
               },
             );
           },

@@ -26,6 +26,7 @@ class NearbyService with ChangeNotifier {
   List<Map<String, dynamic>> payloads = [{}];
   
   Exception? error;
+  bool errorHandled = false;
   
   // NearbyService.page(PageController pageController) {
   //   addListener(() {
@@ -95,9 +96,11 @@ class NearbyService with ChangeNotifier {
         if(status == Status.CONNECTED) {
           // connectedDevice?.endpointName = id;
           connectedDevices[id]?.endpointName = id;
-          // developer.log(jsonEncode(response));
-          Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
-          payloads.removeAt(0);
+          await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
+          if(response.contains('type')) {
+            // payloads.removeAt(0);
+            payloads[0]["sent"] = true;
+          }
           notifyListeners();
         } else {
           // connectedDevice = null;
@@ -115,6 +118,7 @@ class NearbyService with ChangeNotifier {
       connectedDevices.remove(key);
       // connectedDevice = null;
       error = e;
+      errorHandled = false;
       notifyListeners();
       return false;
     });
@@ -172,7 +176,12 @@ class NearbyService with ChangeNotifier {
             // developer.log();
             if(payload.containsKey('content')) {
               payload["device_id"] = endid;
-              payloads.insert(0, payload);
+              // if(payloads[0].containsKey('type')) {
+              //   payloads.insert(0, payload);
+              // } else {
+              //   payloads[0] = payload;
+              // }
+              payloads[0] = payload;
               notifyListeners();
             } else if(isAdvertising){
               await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
@@ -198,6 +207,7 @@ class NearbyService with ChangeNotifier {
       ).catchError((e) {
         connectedDevices.remove(id);
         error = e;
+        errorHandled = false;
         notifyListeners();
         return false;
       });

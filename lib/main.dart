@@ -177,9 +177,15 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (_) => const Rooms()
       );
     case '/responsePage':
-      return MaterialPageRoute(builder: (_) => const ResponsePage());
+      return MaterialPageRoute(
+        settings: settings,
+        builder: (_) => const ResponsePage()
+      );
     case '/createForm':
-      return MaterialPageRoute(builder: (_) => const CreateForm());
+      return MaterialPageRoute(
+        settings: settings,
+        builder: (_) => const CreateForm()
+      );
     // case 'formPage':
     //   return MaterialPageRoute(builder: (_) => const TempPage());
     default:

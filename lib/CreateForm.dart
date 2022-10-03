@@ -30,11 +30,27 @@ class _CreateFormState extends State<CreateForm> {
     ]
   };
   
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   form["device_id"] = context.read<NearbyService>().userName;
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NearbyService>().addListener(catchError);
+    });
+  }
+  
+  @override
+  void deactivate() {
+    context.read<NearbyService>().removeListener(catchError);
+    super.deactivate();
+  }
+  
+  void catchError() {
+    if(context.read<NearbyService>().error != null) {
+      // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
+      // Navigator.of(context).pop();
+      context.read<NearbyService>().error = null;
+    }
+  }
   
   @override
   void dispose() {
@@ -49,9 +65,11 @@ class _CreateFormState extends State<CreateForm> {
         title: const Text('Create Form'),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Create Form'),
-          Text(new JsonEncoder.withIndent("  ").convert(form)),
+          const Text('Create Form'),
+          Text("Is open: ${context.watch<NearbyService>().isAdvertising}"),
+          Text(const JsonEncoder.withIndent("  ").convert(form)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -69,7 +87,7 @@ class _CreateFormState extends State<CreateForm> {
               ),
             ],
           ),
-          Text("Data"),
+          const Text("Data"),
           ListView.builder(
             itemCount: context.watch<NearbyService>().payloads.length,
             shrinkWrap: true,
@@ -78,14 +96,14 @@ class _CreateFormState extends State<CreateForm> {
             },
           ),
 
-          ElevatedButton(
-            onPressed: () {
-              // developer.log(jsonEncode(form).runtimeType.toString());
-              // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
-              developer.log(context.read<NearbyService>().payloads.toString());
-            },
-            child: const Text('Test'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     // developer.log(jsonEncode(form).runtimeType.toString());
+          //     // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
+          //     developer.log(context.read<NearbyService>().payloads.toString());
+          //   },
+          //   child: const Text('Test'),
+          // ),
         ],
       ),
     );
