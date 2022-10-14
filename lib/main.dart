@@ -8,6 +8,9 @@ import 'package:sdl/Rooms.dart';
 
 // unique id for forms 
 // Rate limiting
+// Navigation bugs
+// Service restart bugs
+// Camera and other permissions
 
 void main() => runApp(const MyApp());
 
