@@ -33,7 +33,7 @@ class HomeState extends State<Home> {
     if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandledByHome == false) {
       // Provider.of<NearbyService>(context, listen: false).error = null;
       // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-      Provider.of<NearbyService>(context, listen: false).foundDevices = {};
+      context.read<NearbyService>().foundDevices = {};
       NearbyService().stopAllEndpoints();
       // NearbyService().startDiscovery();
       Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;

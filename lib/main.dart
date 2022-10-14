@@ -6,6 +6,9 @@ import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
 import 'package:sdl/Rooms.dart';
 
+// unique id for forms 
+// Rate limiting
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {

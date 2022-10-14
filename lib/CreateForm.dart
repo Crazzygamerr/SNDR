@@ -66,7 +66,7 @@ class CreateFormState extends State<CreateForm> {
     if(
       context.read<NearbyService>().connectedDevices.isNotEmpty 
       && isSharing 
-      && !context.read<NearbyService>().payloads[0].containsKey("type")
+      && !context.read<NearbyService>().payloads[0].containsKey("contentType")
     ) {
       Provider.of<NearbyService>(context, listen: false).payloads = [{"type": "share", "contentType": "ack"}];
       Navigator.of(context).pushNamed('/responsePage').then((value) {
@@ -98,7 +98,7 @@ class CreateFormState extends State<CreateForm> {
         children: [
           const Text('Create Form'),
           Text("Is open: ${context.watch<NearbyService>().isAdvertising}"),
-          Text(const JsonEncoder.withIndent("  ").convert(form)),
+          // Text(const JsonEncoder.withIndent("  ").convert(form)),
           DropdownButton(
             value: isSharing,
             onChanged: (v) => setState(() => isSharing = v as bool),
@@ -124,11 +124,13 @@ class CreateFormState extends State<CreateForm> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if(isSharing) {
-                    NearbyService().startAdvertising(shareMsg, isSharing: true);
-                  } else {
-                    NearbyService().startAdvertising(form, isSharing: false);
-                  }
+                  context.read<NearbyService>().payloads = [{}];
+                },
+                child: const Text('Clear'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
                 },
                 child: const Text('Open'),
               ),

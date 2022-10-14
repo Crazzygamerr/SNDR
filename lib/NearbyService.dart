@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
@@ -36,6 +37,7 @@ class NearbyService with ChangeNotifier {
   //     }
   //   });
   // }
+  CameraController? cameraController;
   
   Future<bool> requestPermissions() async {
     if(!await Nearby().checkLocationPermission()) { await Nearby().askLocationPermission(); }
@@ -53,7 +55,9 @@ class NearbyService with ChangeNotifier {
   
   Future<String> startDiscovery() async {
     try {
+      foundDevices = {};
       await Nearby().stopDiscovery();
+      await Future.delayed(const Duration(seconds: 1));
       bool a = await Nearby().startDiscovery(
         userName,
         strategy,
@@ -72,7 +76,7 @@ class NearbyService with ChangeNotifier {
         },
       );
       isDiscovering = a;
-      foundDevices = {};
+      // developer.log("Discovering: $a");
       notifyListeners();
       return a.toString();
     } catch (e) {
@@ -131,6 +135,7 @@ class NearbyService with ChangeNotifier {
     {required bool isSharing}
     ) async {
     await Nearby().stopAdvertising();
+    Future.delayed(const Duration(seconds: 1));
     try {
       await Nearby().stopAdvertising();
       bool a = await Nearby().startAdvertising(
@@ -210,11 +215,25 @@ class NearbyService with ChangeNotifier {
             } else if(payload["type"] == "share") {
               if(payload["contentType"] == "filename") {
                 payload["device_id"] = endid;
-                developer.log("Filename");
+                // developer.log("Filename");
                 payloads.insert(0, payload);
                 // moveFile(endid, payload["payload_id"], payload);
                 checkAndMoveFile(payload["payload_id"].toString());
                 
+              } else if(payload["contentType"] == "camera") {
+                if(payload["content"] == "open") {
+                  payload["device_id"] = endid;
+                  payloads.insert(0, payload);
+                  notifyListeners();
+                } else if(payload["content"] == "close") {
+                  var p = payloads.firstWhere((element) => element["contentType"] == "camera" && element["content"] == "close");
+                  payloads.remove(p);
+                } else if(payload["content"] == "clickImage") {
+                  if (cameraController?.value.isInitialized ?? false) {
+                    XFile? file = await cameraController?.takePicture();
+                    moveFileFromPathToDownloads(file?.path ?? "");
+                  }
+                }
               } else {
                 payloads.insert(0, payload);
               }
@@ -222,7 +241,7 @@ class NearbyService with ChangeNotifier {
             }
             
           } else if (pload.type == PayloadType.FILE) {
-            developer.log("Insert ${pload.id} ${pload.uri ?? ""}");
+            // developer.log("Insert ${pload.id} ${pload.uri ?? ""}");
             payloads.insert(0, {
               "type": "share",
               "contentType": "file",
@@ -235,7 +254,7 @@ class NearbyService with ChangeNotifier {
           }
         },
         onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
-          developer.log("Update ${payloadTransferUpdate.id}: ${payloadTransferUpdate.status}");
+          // developer.log("Update ${payloadTransferUpdate.id}: ${payloadTransferUpdate.status}");
           if(payloadTransferUpdate.status == PayloadStatus.SUCCESS) {
             checkAndMoveFile(id);
           }
@@ -263,12 +282,9 @@ class NearbyService with ChangeNotifier {
       && element["filename"] != null,
       orElse: () => {}
     );
-    developer.log("Check and move called");
-    developer.log(payload.toString());
-    developer.log(filePayload.toString());
+    // developer.log("Check and move called");
     if(filePayload.isNotEmpty && payload.isNotEmpty) {
-      developer.log("Moving file");
-      final b = await moveFile(filePayload["content"], payload["filename"]);
+      final b = await moveFileFromUri(filePayload["content"], payload["filename"]);
       if(b) {
         payloads[payloads.indexOf(filePayload)]["moved"] = true;
       }
@@ -276,7 +292,19 @@ class NearbyService with ChangeNotifier {
     }
   }
   
-  Future<bool> moveFile(String uri, String fileName) async {
+  Future<bool> moveFileFromPathToDownloads(String path) async {
+    if(path.isEmpty) return false;
+    try {
+      final String newPath = "/storage/emulated/0/Download/${path.split("/").last}";
+      final File file = File(path);
+      await file.copy(newPath);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  Future<bool> moveFileFromUri(String uri, String fileName) async {
     // String parentDir = (await getExternalStorageDirectory())!.absolute.path;
     String parentDir = "/storage/emulated/0/Download";
     final b = await Nearby().copyFileAndDeleteOriginal(uri, '$parentDir/$fileName');
@@ -327,8 +355,11 @@ class NearbyService with ChangeNotifier {
   //   return b;
   // }
   
-  Future<void> sendBytesPayload(String id, Uint8List list) async {
-    await Nearby().sendBytesPayload(id, list);
+  Future<void> sendBytesPayload(Map<String, dynamic> payload) async {
+    await Nearby().sendBytesPayload(
+      connectedDevices.keys.toList()[0], 
+      Uint8List.fromList(utf8.encode(jsonEncode(payload)))
+    );
   }
   
   Future<void> sendFilePayload(File file) async {

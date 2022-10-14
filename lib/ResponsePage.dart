@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,17 +33,26 @@ class ResponsePageState extends State<ResponsePage> {
     ]
   };
   bool? isSharing;
+  bool isCameraOpen = false;
+  CameraController? controller;
   
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<NearbyService>().removeListener(catchError);
       context.read<NearbyService>().addListener(catchError);
       // payloadType = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] : "";
       isSharing = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
+      
+      List<CameraDescription> cameras = await availableCameras();
+      controller = CameraController(cameras[0], ResolutionPreset.medium);
+      controller!.initialize().then((_) {
+        if(!mounted) return;
+        context.read<NearbyService>().cameraController = controller;
+        setState(() {});
+      });
     });
-    
   }
   
   @override
@@ -57,17 +68,19 @@ class ResponsePageState extends State<ResponsePage> {
   void dispose() {
     // context.read<NearbyService>().removeListener(catchError);
     // context.read<NearbyService>().payloads = [{}];
-    NearbyService().stopAllEndpoints(); 
+    // NearbyService().stopAllEndpoints();
     // super.deactivate();
+    controller?.dispose();
     super.dispose();
   }
   
   void catchError() {
     if(!mounted) return;
-    if(context.read<NearbyService>().error != null || context.read<NearbyService>().connectedDevices.isEmpty) {
+    if(context.read<NearbyService>().error != null || (context.read<NearbyService>().connectedDevices.isEmpty && (isSharing ?? false))) {
+      // developer.log(context.read<NearbyService>().error.toString());
       Provider.of<NearbyService>(context, listen: false).payloads = [{}];
       context.read<NearbyService>().error = null;
-      Navigator.of(context).pop();
+      ModalRoute.of(context)?.settings.name == "/responsePage" ? Navigator.pop(context) : null;
     }
   }
   
@@ -110,8 +123,6 @@ class ResponsePageState extends State<ResponsePage> {
           
           if (isSharing != null && isSharing!)
             ...[
-              // const Text("Connected"),
-              // Text(context.watch<NearbyService>().payloads.map((e) => e["type"] == "share" ? e["content"] : "").toString()),
               ElevatedButton(
                 child: const Text("Send File Payload"),
                 onPressed: () async {
@@ -125,17 +136,51 @@ class ResponsePageState extends State<ResponsePage> {
                   // developer.log('{"type": "share", "contentType": "filename", "content": "${file.path.split('/').last}}"');
                 },
               ),
-              // ElevatedButton(
-              //   child: const Text("Print"),
-              //   onPressed: () async {
-              //     developer.log(context.read<NearbyService>().payloads.toString());
-              //     // list the files in the directory
-              //     final directory = (await getExternalStorageDirectory())!.absolute.path;
-              //     final myDir = Directory(directory);
-              //     List<FileSystemEntity> _files = myDir.listSync(recursive: true, followLinks: false);
-              //     developer.log(_files.toString());
-              //   },
-              // ),
+              (!isCameraOpen) ? ElevatedButton(
+                child: const Text("Open camera"),
+                onPressed: () async {
+                  setState(() {
+                    isCameraOpen = true;
+                  });
+                  NearbyService().sendBytesPayload({
+                    "type": "share",
+                    "contentType": "camera",
+                    "content": "open",
+                  });
+                },
+              ) : ElevatedButton(
+                child: const Text("Close camera"),
+                onPressed: () async {
+                  setState(() {
+                    isCameraOpen = false;
+                  });
+                  NearbyService().sendBytesPayload({
+                    "type": "share",
+                    "contentType": "camera",
+                    "content": "close",
+                });
+                },
+              ),
+              if(context.read<NearbyService>().payloads[0]["contentType"] == "camera" && context.read<NearbyService>().payloads[0]["content"] == "open")
+                ElevatedButton(
+                  child: const Text("Take picture"),
+                  onPressed: () async {
+                    NearbyService().sendBytesPayload({
+                      "type": "share",
+                      "contentType": "camera",
+                      "content": "clickImage",
+                    });
+                  },
+                ),
+              if(isCameraOpen && controller != null) SizedBox(
+                width: 200,
+                height: 200,
+                child: AspectRatio(
+                  aspectRatio: controller!.value.aspectRatio,
+                  child: CameraPreview(controller!),
+                ),
+              ),
+              
               // ElevatedButton(
               //   child: const Text("Clear"),
               //   onPressed: () async {
