@@ -1,23 +1,32 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
-import 'package:sdl/NearbyService.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/NearbyService.dart';
+
+// enum FormType { form, attendace, camera, file }
 
 class CreateForm extends StatefulWidget {
-  const CreateForm({Key? key}) : super(key: key);
-
+  // final FormType formType;
+  
+  const CreateForm({
+    Key? key,
+    // required this.formType
+  }) : super(key: key);
+  
   @override
-  State<CreateForm> createState() => _CreateFormState();
+  State<CreateForm> createState() => CreateFormState();
 }
 
-class _CreateFormState extends State<CreateForm> {
+class CreateFormState extends State<CreateForm> {
   
+  Map<String, dynamic> shareMsg = {
+    "type": "share",
+    "contentType": "string",
+    "content": "Hello World",
+  };
   Map<String, dynamic> form = {
     "type": "form",
-    // "type": "attendance",
-    // "type": "camera",
-    // "type": "file","
     "content": [
       {
         "id": 1,
@@ -29,32 +38,52 @@ class _CreateFormState extends State<CreateForm> {
       }
     ]
   };
+  bool isSharing = false;
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NearbyService>().removeListener(catchError);
+      context.read<NearbyService>().removeListener(goToConnectedPage);
       context.read<NearbyService>().addListener(catchError);
+      context.read<NearbyService>().addListener(goToConnectedPage);
     });
   }
   
-  @override
-  void deactivate() {
-    context.read<NearbyService>().removeListener(catchError);
-    super.deactivate();
+  void catchError() {
+    if(!mounted) return;
+    if(context.read<NearbyService>().error != null) {
+      // if(context.read<NearbyService>().isAdvertising) {
+      //   context.read<NearbyService>().startAdvertising(form);
+      // }
+      context.read<NearbyService>().error = null;
+    }
   }
   
-  void catchError() {
-    if(context.read<NearbyService>().error != null) {
-      // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-      // Navigator.of(context).pop();
-      context.read<NearbyService>().error = null;
+  void goToConnectedPage() {
+    if(!mounted) return;
+    if(
+      context.read<NearbyService>().connectedDevices.isNotEmpty 
+      && isSharing 
+      && !context.read<NearbyService>().payloads[0].containsKey("type")
+    ) {
+      Provider.of<NearbyService>(context, listen: false).payloads = [{"type": "share", "contentType": "ack"}];
+      Navigator.of(context).pushNamed('/responsePage').then((value) {
+        context.read<NearbyService>().payloads = [{}];
+        NearbyService().stopAllEndpoints();
+        NearbyService().startAdvertising(shareMsg, isSharing: true);
+      });
     }
   }
   
   @override
   void dispose() {
     NearbyService().stopAdvertising();
+    NearbyService().stopDiscovery();
+    NearbyService().stopAllEndpoints();
+    // context.read<NearbyService>().removeListener(catchError);
+    // context.read<NearbyService>().removeListener(goToConnectedPage);
     super.dispose();
   }
   
@@ -70,6 +99,20 @@ class _CreateFormState extends State<CreateForm> {
           const Text('Create Form'),
           Text("Is open: ${context.watch<NearbyService>().isAdvertising}"),
           Text(const JsonEncoder.withIndent("  ").convert(form)),
+          DropdownButton(
+            value: isSharing,
+            onChanged: (v) => setState(() => isSharing = v as bool),
+            items: const [
+              DropdownMenuItem(
+                value: true,
+                child: Text("Share"),
+              ),
+              DropdownMenuItem(
+                value: false,
+                child: Text("Form"),
+              ),
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -81,7 +124,11 @@ class _CreateFormState extends State<CreateForm> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  NearbyService().startAdvertising(form);
+                  if(isSharing) {
+                    NearbyService().startAdvertising(shareMsg, isSharing: true);
+                  } else {
+                    NearbyService().startAdvertising(form, isSharing: false);
+                  }
                 },
                 child: const Text('Open'),
               ),

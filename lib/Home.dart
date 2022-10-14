@@ -17,36 +17,27 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NearbyService>().addListener(() {
-        // developer.log("Called outside");
-        // if(
-        //   // context.read<NearbyService>().connectedDevice != null
-        //   context.read<NearbyService>().connectedDevices.isNotEmpty
-        //   // || context.read<NearbyService>().payload.containsKey('type')
-        //   || context.read<NearbyService>().payloads[0].containsKey('content')
-        //   ) {
-        //   if(context.read<NearbyService>().isDiscovering && ModalRoute.of(context)!.settings.name != '/response'){
-        //     // developer.log("Response called");
-        //     // Navigator.pushNamed(context, '/response');
-        //   }
-        // } else {
-        //   developer.log(ModalRoute.of(context)?.settings.toString() ?? "");
-        //   if(context.read<NearbyService>().isDiscovering && ModalRoute.of(context)!.settings.name != '/rooms'){
-        //     // developer.log("Room called");
-        //     // Navigator.pushNamed(context, '/rooms');
-        //   }
-        // }
-        
-        if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandled == false) {
-          // Provider.of<NearbyService>(context, listen: false).error = null;
-          // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-          Provider.of<NearbyService>(context, listen: false).foundDevices = {};
-          NearbyService().stopAllEndpoints();
-          // NearbyService().startDiscovery();
-          Provider.of<NearbyService>(context, listen: false).errorHandled = true;
-        }
-      });
+      context.read<NearbyService>().removeListener(catchError);
+      context.read<NearbyService>().addListener(catchError);
     });
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    // context.read<NearbyService>().removeListener(catchError);
+  }
+  
+  void catchError() {
+    if(!mounted) return;
+    if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandledByHome == false) {
+      // Provider.of<NearbyService>(context, listen: false).error = null;
+      // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
+      Provider.of<NearbyService>(context, listen: false).foundDevices = {};
+      NearbyService().stopAllEndpoints();
+      // NearbyService().startDiscovery();
+      Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
+    }
   }
   
   @override
@@ -79,30 +70,6 @@ class HomeState extends State<Home> {
             }, 
             child: const Text('Test'),
           ),
-        //   ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, 'attendance');
-        //     }, 
-        //     child: const Text('Attendance'),
-        //   ),
-        //   ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, 'formPage');
-        //     }, 
-        //     child: const Text('Form'),
-        //   ),
-        //   ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, 'camera');
-        //     }, 
-        //     child: const Text('Camera'),
-        //   ),
-        //   ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, 'file');
-        //     }, 
-        //     child: const Text('File Sharing'),
-        //   ),
         ],
       ),
     );

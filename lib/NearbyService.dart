@@ -1,21 +1,22 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:developer' as developer;
-import 'package:image_picker/image_picker.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum NearbyState { isIdle, isAdvertising, isDiscovering }
+// enum ExchangeType { none, form, share }
 
 class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
   factory NearbyService() => _instance;
   NearbyService._internal();
   
-  // NearbyState nearbyState = NearbyState.isIdle;
+  // ExchangeType exchangeType = ExchangeType.none;
   bool isAdvertising = false, isDiscovering = false;
   final Strategy strategy = Strategy.P2P_STAR;
   final String userName = Random().nextInt(10000).toString();
@@ -26,7 +27,7 @@ class NearbyService with ChangeNotifier {
   List<Map<String, dynamic>> payloads = [{}];
   
   Exception? error;
-  bool errorHandled = false;
+  bool errorHandledByHome = false;
   
   // NearbyService.page(PageController pageController) {
   //   addListener(() {
@@ -87,7 +88,7 @@ class NearbyService with ChangeNotifier {
         connectedDevices[id] = info;
         // connectedDevice = info;
         notifyListeners();
-        bool b = await acceptConnection(id);
+        bool b = await acceptConnection_Form(id);
         if(!b) {
           throw Exception('Connection failed');
         }
@@ -96,8 +97,8 @@ class NearbyService with ChangeNotifier {
         if(status == Status.CONNECTED) {
           // connectedDevice?.endpointName = id;
           connectedDevices[id]?.endpointName = id;
-          await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
-          if(response.contains('type')) {
+          await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(response)));
+          if(response.contains('content')) {
             // payloads.removeAt(0);
             payloads[0]["sent"] = true;
           }
@@ -118,14 +119,17 @@ class NearbyService with ChangeNotifier {
       connectedDevices.remove(key);
       // connectedDevice = null;
       error = e;
-      errorHandled = false;
+      errorHandledByHome = false;
       notifyListeners();
       return false;
     });
     return true;
   }
   
-  Future<bool> startAdvertising(Map<String, dynamic> form) async {
+  Future<bool> startAdvertising(
+    Map<String, dynamic> form, 
+    {required bool isSharing}
+    ) async {
     await Nearby().stopAdvertising();
     try {
       await Nearby().stopAdvertising();
@@ -136,7 +140,11 @@ class NearbyService with ChangeNotifier {
           connectedDevices[id] = info;
           // connectedDevice = info;
           notifyListeners();
-          await acceptConnection(id, jsonEncode(form));
+          // if(isSharing) {
+          //   // await acceptConnection_Share(id);
+          // } else {
+          // }
+          await acceptConnection_Form(id, jsonEncode(form));
         },
         onConnectionResult: (id, status) async {
           if(status == Status.CONNECTED) {
@@ -162,56 +170,180 @@ class NearbyService with ChangeNotifier {
     }
   }
   
-  Future<bool> acceptConnection(
+  Future<bool> acceptConnection_Form(
       String id,
       [String form = ""]
     ) async {
       await Nearby().acceptConnection(
         id,
+        //TODO: Check if endid is the same as this id
         onPayLoadRecieved: (endid, pload) async {
           if (pload.type == PayloadType.BYTES) {
             String str = String.fromCharCodes(pload.bytes!);
             // developer.log(str);
-            var payload = jsonDecode(jsonDecode(str));
-            // developer.log();
-            if(payload.containsKey('content')) {
-              payload["device_id"] = endid;
-              // if(payloads[0].containsKey('type')) {
-              //   payloads.insert(0, payload);
-              // } else {
-              //   payloads[0] = payload;
+            var payload = jsonDecode(str);
+            // developer.log("${pload.id}: ${payload.toString()}");
+            
+            if(payload["type"] == "request"){
+              await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(form)));
+            } else if(payload["type"] == "form" || payload["type"] == "response") {
+              if(payload.containsKey('content')) {
+                payload["device_id"] = endid;
+                payloads.insert(0, payload);
+                notifyListeners();
+                if(isAdvertising) {
+                  await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode('{"type": "form", "ack": true}')));
+                }
+              }
+              // if(isAdvertising) {
+              //   if(payload.containsKey('content')) {
+              //     await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode('{"type": "form", "ack": true}'))));
+              //   } else {
+              //     await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
+              //   }
               // }
-              payloads[0] = payload;
+              if(isDiscovering){
+                await Nearby().disconnectFromEndpoint(id);
+                connectedDevices.remove(id);
+                notifyListeners();
+              }
+            } else if(payload["type"] == "share") {
+              if(payload["contentType"] == "filename") {
+                payload["device_id"] = endid;
+                developer.log("Filename");
+                payloads.insert(0, payload);
+                // moveFile(endid, payload["payload_id"], payload);
+                checkAndMoveFile(payload["payload_id"].toString());
+                
+              } else {
+                payloads.insert(0, payload);
+              }
               notifyListeners();
-            } else if(isAdvertising){
-              await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
             }
-            if(isDiscovering){
-              await Nearby().disconnectFromEndpoint(id);
-              connectedDevices.remove(id);
-              notifyListeners();
-            }
-            // if(nearbyState == NearbyState.isDiscovering) {
-            //   await Nearby().disconnectFromEndpoint(id);
-            // }
-            // if(nearbyState == NearbyState.isAdvertising && !payload.containsKey('type')) {
-            //   await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
-            // }
+            
           } else if (pload.type == PayloadType.FILE) {
-            // tempFileUri = payload.uri;
+            developer.log("Insert ${pload.id} ${pload.uri ?? ""}");
+            payloads.insert(0, {
+              "type": "share",
+              "contentType": "file",
+              "device_id": endid,
+              "payload_id": pload.id,
+              "content": pload.uri,
+              "moved": false,
+            });
+            // developer.log(payloads.toString());
           }
         },
         onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
-          // developer.log(payloadTransferUpdate.status.toString());
+          developer.log("Update ${payloadTransferUpdate.id}: ${payloadTransferUpdate.status}");
+          if(payloadTransferUpdate.status == PayloadStatus.SUCCESS) {
+            checkAndMoveFile(id);
+          }
         },
       ).catchError((e) {
         connectedDevices.remove(id);
         error = e;
-        errorHandled = false;
+        errorHandledByHome = false;
         notifyListeners();
         return false;
       });
       return true;
+  }
+  
+  Future<void> checkAndMoveFile(String id) async {
+    var filePayload = payloads
+      .firstWhere((element) => 
+      element["payload_id"].toString() == id 
+      && element["moved"] == false,
+      orElse: () => {}
+    );
+    var payload = payloads
+      .firstWhere((element) => 
+      element["payload_id"].toString() == id 
+      && element["filename"] != null,
+      orElse: () => {}
+    );
+    developer.log("Check and move called");
+    developer.log(payload.toString());
+    developer.log(filePayload.toString());
+    if(filePayload.isNotEmpty && payload.isNotEmpty) {
+      developer.log("Moving file");
+      final b = await moveFile(filePayload["content"], payload["filename"]);
+      if(b) {
+        payloads[payloads.indexOf(filePayload)]["moved"] = true;
+      }
+      notifyListeners();
+    }
+  }
+  
+  Future<bool> moveFile(String uri, String fileName) async {
+    // String parentDir = (await getExternalStorageDirectory())!.absolute.path;
+    String parentDir = "/storage/emulated/0/Download";
+    final b = await Nearby().copyFileAndDeleteOriginal(uri, '$parentDir/$fileName');
+    // developer.log('$parentDir/$fileName');
+    return b;
+  }
+  
+  // Future<bool> moveFile(String endid, int payloadId, Map<String, dynamic> p) async {
+  //   bool b;
+  //   var filePl = payloads.firstWhere((element) => 
+  //     element["payload_id"] == payloadId 
+  //     && element["device_id"] == endid
+  //     && element["contentType"] != p["contentType"],
+  //     orElse: () => p,
+  //     );
+    
+  //   if(filePl == p) {
+  //     payloads.insert(0, p);
+  //     return false;
+  //   } else { 
+  //     String uri, fileName;
+      
+  //     if(filePl["contentType"] == "file") {
+  //       uri = filePl["content"];
+  //       fileName = p["content"];
+  //     } else {
+  //       uri = filePl["content"];
+  //       fileName = filePl["content"];
+  //     }
+      
+  //     String parentDir = (await getExternalStorageDirectory())!.absolute.path;
+  //     b = await Nearby().copyFileAndDeleteOriginal(uri, '$parentDir/$fileName');
+  //   }
+    
+  //   notifyListeners();
+  //   return b;
+  // }
+  
+  // Future<bool> moveFile(String uri, String fileName) async {
+  //   String parentDir = (await getExternalStorageDirectory())!.absolute.path;
+  //   // developer.log(uri);
+  //   ///storage/emulated/0/Android/data/com.example.sdl/files
+  //   File file = File.fromUri(Uri.dataFromString(uri));
+  //   developer.log(file.path);
+  //   final b = await Nearby().copyFileAndDeleteOriginal(uri, '/storage/emulated/0/Download/$fileName');
+
+  //   showSnackbar("Moved file:$b");
+  //   return b;
+  // }
+  
+  Future<void> sendBytesPayload(String id, Uint8List list) async {
+    await Nearby().sendBytesPayload(id, list);
+  }
+  
+  Future<void> sendFilePayload(File file) async {
+    String id = connectedDevices.keys.first;      /// The file is sent to the first connected
+    var payloadId = await Nearby().sendFilePayload(id, file.path);
+    Nearby().sendBytesPayload(
+      id,
+      Uint8List.fromList(utf8.encode(
+        jsonEncode({
+          "type": "share",
+          "contentType": "filename",
+          "payload_id": payloadId,
+          "filename": file.path.split('/').last
+        })
+      )));
   }
   
   Future<void> stopAdvertising() async {

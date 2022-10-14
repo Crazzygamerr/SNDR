@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'dart:developer' as developer;
 
 class Rooms extends StatefulWidget {
   const Rooms({Key? key}) : super(key: key);
@@ -13,27 +14,24 @@ class RoomsState extends State<Rooms> {
   
   @override
   void initState() {
+  // void activate() {
     super.initState();
-    init();    
-  }
-  
-  void init() {
-    initialize();
+    super.activate();
+    developer.log("init");
+    startDis();    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NearbyService>().payloads = [{}];
     });
   }
   
-  void initialize() async {
-    bool b = await NearbyService().requestPermissions();
-    if(b) {
-      await NearbyService().stopAllEndpoints();
-      String s = await NearbyService().startDiscovery();
-      if(s != 'true') {
-        showSnackbar(s);
-      }
+  void startDis() async {
+    await NearbyService().stopAllEndpoints();
+    String s = await NearbyService().startDiscovery();
+    if(s != 'true') {
+      showSnackbar(s);
     }
   }
+  
   
   // @override
   // void didChangeDependencies() {
@@ -53,17 +51,20 @@ class RoomsState extends State<Rooms> {
   
   @override
   void dispose() {
+  // void deactivate() {
     NearbyService().stopDiscovery();
+    NearbyService().stopAllEndpoints();
+    // developer.log("dispose");
     // context.read<NearbyService>().removeListener(changeRoute);
     super.dispose();
+    // super.deactivate();
   }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // title: Text("Rooms"),
-        title: Text(ModalRoute.of(context)!.settings.name.toString()),
+        title: const Text("Rooms"),
       ),
       body: SizedBox(
         // max height and width
@@ -81,13 +82,13 @@ class RoomsState extends State<Rooms> {
                 // connect to device
                 NearbyService().requestConnection(
                   key, 
-                  "{}"
+                  '{"type": "request"}'
                   // jsonEncode({
                   //   "type": "request",
                   //   "device_id": context.read<NearbyService>().userName,
                   // })
                 );
-                Navigator.pushNamed(context, '/responsePage');
+                Navigator.pushNamed(context, '/responsePage').then((value) => startDis());
               },
             );
           },
