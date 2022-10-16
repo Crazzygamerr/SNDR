@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,16 +26,14 @@ class CreateFormState extends State<CreateForm> {
   };
   Map<String, dynamic> form = {
     "type": "form",
+    "title": "Untitled Form",
     "content": [
       {
-        "id": 1,
-        "title": "What is your name?",
-      },
-      {
-        "id": 2,
-        "title": "What is your age?",
+        "type": "singleLine",
+        "title": "Untitled Question",
+        "content": "",
       }
-    ]
+    ],
   };
   bool isSharing = false;
   
@@ -93,67 +90,133 @@ class CreateFormState extends State<CreateForm> {
       appBar: AppBar(
         title: const Text('Create Form'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Create Form'),
-          Text("Is open: ${context.watch<NearbyService>().isAdvertising}"),
-          // Text(const JsonEncoder.withIndent("  ").convert(form)),
-          DropdownButton(
-            value: isSharing,
-            onChanged: (v) => setState(() => isSharing = v as bool),
-            items: const [
-              DropdownMenuItem(
-                value: true,
-                child: Text("Share"),
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        child: ListView(
+          children: [
+            InputDecorator(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               ),
-              DropdownMenuItem(
-                value: false,
-                child: Text("Form"),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  value: isSharing,
+                  onChanged: (v) => setState(() => isSharing = v as bool),
+                  items: const [
+                    DropdownMenuItem(
+                      value: true,
+                      child: Text("Share"),
+                    ),
+                    DropdownMenuItem(
+                      value: false,
+                      child: Text("Form"),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  NearbyService().stopAdvertising();
+            ),
+            const SizedBox(height: 15),
+            if(!isSharing)
+            ...[
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Form Title',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  labelText: 'Form Description',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListView.builder(
+                itemCount: form["content"].length,
+                shrinkWrap: true,
+                itemBuilder: (context, index){
+                  return Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(10),
+                      title: TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Question Title',
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          border: UnderlineInputBorder(),
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => setState(() => form["content"].removeAt(index)),
+                      ),
+                      
+                    ),
+                  );
                 },
-                child: const Text('Close'),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  context.read<NearbyService>().payloads = [{}];
-                },
-                child: const Text('Clear'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
-                },
-                child: const Text('Open'),
-              ),
-            ],
-          ),
-          const Text("Data"),
-          ListView.builder(
-            itemCount: context.watch<NearbyService>().payloads.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return Text(context.watch<NearbyService>().payloads[index].toString());
-            },
-          ),
+              const SizedBox(height: 15),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: TextButton(
+                  onPressed: () => setState(() => form["content"].add({
+                    "type": "singleLine",
+                    "title": "Untitled Question",
+                    "content": "",
+                  })),
+                  child: const Text('Add Question'),
+                ),
+              ),              
+            ],  
+            
+            Text("Is open: ${context.watch<NearbyService>().isAdvertising}"),
+            // Text(const JsonEncoder.withIndent("  ").convert(form)),
+            
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    NearbyService().stopAdvertising();
+                  },
+                  child: const Text('Close'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+                  },
+                  child: const Text('Open'),
+                ),
+              ],
+            ),
+            const Text("Data"),
+            ListView.builder(
+              itemCount: context.watch<NearbyService>().payloads.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return Text(context.watch<NearbyService>().payloads[index].toString());
+              },
+            ),
 
-          // ElevatedButton(
-          //   onPressed: () {
-          //     // developer.log(jsonEncode(form).runtimeType.toString());
-          //     // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
-          //     developer.log(context.read<NearbyService>().payloads.toString());
-          //   },
-          //   child: const Text('Test'),
-          // ),
-        ],
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // developer.log(jsonEncode(form).runtimeType.toString());
+            //     // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
+            //     developer.log(context.read<NearbyService>().payloads.toString());
+            //   },
+            //   child: const Text('Test'),
+            // ),
+          ],
+        ),
       ),
     );
   }
