@@ -12,6 +12,8 @@ import 'package:sdl/Rooms.dart';
 // Service restart bugs
 // Camera and other permissions
 // Camera options like flash
+// remove all listeners & use didChangeDependencies
+// msg send time & long press options
 
 void main() => runApp(const MyApp());
 

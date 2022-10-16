@@ -44,14 +44,6 @@ class ResponsePageState extends State<ResponsePage> {
       context.read<NearbyService>().addListener(catchError);
       // payloadType = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] : "";
       isSharing = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
-      
-      List<CameraDescription> cameras = await availableCameras();
-      controller = CameraController(cameras[0], ResolutionPreset.medium);
-      controller!.initialize().then((_) {
-        if(!mounted) return;
-        context.read<NearbyService>().cameraController = controller;
-        setState(() {});
-      });
     });
   }
   
@@ -216,13 +208,22 @@ class ResponsePageState extends State<ResponsePage> {
                           (!isCameraOpen) ? IconButton(
                             icon: const Icon(Icons.camera_alt),
                             onPressed: () async {
-                              setState(() {
-                                isCameraOpen = true;
-                              });
-                              NearbyService().sendBytesPayload({
-                                "type": "share",
-                                "contentType": "camera",
-                                "content": "open",
+                              List<CameraDescription> cameras = await availableCameras();
+                              controller = CameraController(cameras[0], ResolutionPreset.medium);
+                              controller!.initialize().then((_) {
+                                if(!mounted) return;
+                                context.read<NearbyService>().cameraController = controller;
+                                setState(() {
+                                  isCameraOpen = true;
+                                });
+                                NearbyService().sendBytesPayload(
+                                  {
+                                    "type": "share",
+                                    "contentType": "camera",
+                                    "content": "open",
+                                  },
+                                  addToPayloads: false
+                                );
                               });
                             },
                           ) : IconButton(
@@ -231,15 +232,40 @@ class ResponsePageState extends State<ResponsePage> {
                               setState(() {
                                 isCameraOpen = false;
                               });
-                              NearbyService().sendBytesPayload({
-                                "type": "share",
-                                "contentType": "camera",
-                                "content": "close",
-                            });
+                              NearbyService().sendBytesPayload(
+                                {
+                                  "type": "share",
+                                  "contentType": "camera",
+                                  "content": "close",
+                                }, 
+                                addToPayloads: false
+                              );
                             },
                           ),
                         ],
-                      ),                      
+                      ),  
+                      // if(payloads[payloads.length - 1]["contentType"] == "camera" && payloads[payloads.length - 1]["content"] == "open")
+                      //   ElevatedButton(
+                      //     child: const Text("Take picture"),
+                      //     onPressed: () async {
+                      //       NearbyService().sendBytesPayload(
+                      //         {
+                      //           "type": "share",
+                      //           "contentType": "camera",
+                      //           "content": "clickImage",
+                      //         }, 
+                      //         addToPayloads: false
+                      //       );
+                      //     },
+                      //   ),       
+                      //   if(isCameraOpen && controller != null) SizedBox(
+                      //     width: 200,
+                      //     height: 200,
+                      //     child: AspectRatio(
+                      //       aspectRatio: controller!.value.aspectRatio,
+                      //       child: CameraPreview(controller!),
+                      //     ),
+                      //   ),             
                       // ElevatedButton(
                       //   child: const Text("Clear"),
                       //   onPressed: () async {
@@ -252,46 +278,57 @@ class ResponsePageState extends State<ResponsePage> {
               ),
             ),
             
-            if(payloads[payloads.length - 1]["contentType"] == "camera" && payloads[payloads.length - 1]["content"] == "open")
-              SizedBox(
+            if(payloads[payloads.length - 1]["contentType"] == "camera" 
+              && payloads[payloads.length - 1]["content"] == "open")
+              Container(
                 height: double.infinity,
                 width: double.infinity,
+                color: Colors.black,
                 child: Center(
                   child: ElevatedButton(
                     child: const Text("Take picture"),
                     onPressed: () async {
-                      NearbyService().sendBytesPayload({
-                        "type": "share",
-                        "contentType": "camera",
-                        "content": "clickImage",
-                      });
+                      NearbyService().sendBytesPayload(
+                        {
+                          "type": "share",
+                          "contentType": "camera",
+                          "content": "clickImage",
+                        }, 
+                        addToPayloads: false
+                      );
                     },
                   ),
                 ),
               ),
             if(isCameraOpen && controller != null) 
-              SizedBox(
+              Container(
                 height: double.infinity,
                 width: double.infinity,
+                color: Colors.black,
                 child: Center(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        ),
                         onPressed: () async {
                           setState(() {
                             isCameraOpen = false;
                           });
-                          NearbyService().sendBytesPayload({
-                            "type": "share",
-                            "contentType": "camera",
-                            "content": "close",
-                          });
+                          NearbyService().sendBytesPayload(
+                            {
+                              "type": "share",
+                              "contentType": "camera",
+                              "content": "close",
+                            }, 
+                            addToPayloads: false
+                          );
                         },
                       ),
-                      SizedBox(
-                        width: 200,
-                        height: 200,
+                      Expanded(
                         child: AspectRatio(
                           aspectRatio: controller!.value.aspectRatio,
                           child: CameraPreview(controller!),

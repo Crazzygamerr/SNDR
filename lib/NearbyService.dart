@@ -350,14 +350,19 @@ class NearbyService with ChangeNotifier {
   //   return b;
   // }
   
-  Future<void> sendBytesPayload(Map<String, dynamic> payload) async {
+  Future<void> sendBytesPayload(
+    Map<String, dynamic> payload, 
+    {bool addToPayloads = true}
+    ) async {
     await Nearby().sendBytesPayload(
       connectedDevices.keys.toList()[0], 
       Uint8List.fromList(utf8.encode(jsonEncode(payload)))
     ).then((value) {
-      payload["sent"] = true;
-      payloads.insert(0, payload);
-      notifyListeners();
+      if(addToPayloads) {
+        payload["sent"] = true;
+        payloads.insert(0, payload);
+        notifyListeners();
+      }
     });
   }
   
