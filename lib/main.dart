@@ -11,6 +11,7 @@ import 'package:sdl/Rooms.dart';
 // Navigation bugs
 // Service restart bugs
 // Camera and other permissions
+// Camera options like flash
 
 void main() => runApp(const MyApp());
 
@@ -78,8 +79,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     default:
       return MaterialPageRoute(
         builder: (_) => Scaffold(
-          body: Center(
-            child: Text('No route defined for ${settings.name}')),
+          body: SafeArea(
+            child: Center(
+              child: Text('No route defined for ${settings.name}')),
+          ),
         ));
   }
 }

@@ -46,32 +46,34 @@ class HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text('SNDR'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/createForm');
-              }, 
-              child: const Text('Form'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/rooms');
-              }, 
-              child: const Text('Rooms'),
-            ),
-            // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // developer.log(context.read<NearbyService>().payloads[0].containsKey("content").toString());
-            //     developer.log(context.read<NearbyService>().foundDevices.toString());
-            //     developer.log(context.read<NearbyService>().connectedDevices.toString());
-            //   }, 
-            //   child: const Text('Test'),
-            // ),
-          ],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/createForm');
+                }, 
+                child: const Text('Form'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/rooms');
+                }, 
+                child: const Text('Rooms'),
+              ),
+              // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     // developer.log(context.read<NearbyService>().payloads[0].containsKey("content").toString());
+              //     developer.log(context.read<NearbyService>().foundDevices.toString());
+              //     developer.log(context.read<NearbyService>().connectedDevices.toString());
+              //   }, 
+              //   child: const Text('Test'),
+              // ),
+            ],
+          ),
         ),
       ),
     );
