@@ -14,6 +14,9 @@ import 'package:sdl/Rooms.dart';
 // Camera options like flash
 // remove all listeners & use didChangeDependencies
 // msg send time & long press options
+// form modification & error handling
+// Refactoring & code cleanup
+// Optimizations
 
 void main() => runApp(const MyApp());
 

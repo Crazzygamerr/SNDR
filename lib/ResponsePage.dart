@@ -20,17 +20,9 @@ class ResponsePageState extends State<ResponsePage> {
   
   Map<String, dynamic> response = {
     "type": "response",
-    "content": [
-      {
-        "id": 1,
-        "answer": "John",
-      },
-      {
-        "id": 2,
-        "answer": 20,
-      }
-    ]
+    "content": [],
   };
+  Map<String, dynamic> form = {};
   bool? isSharing;
   bool isCameraOpen = false;
   CameraController? controller;
@@ -53,6 +45,13 @@ class ResponsePageState extends State<ResponsePage> {
     // payloadType = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] : "";
     // developer.log(context.read<NearbyService>().payloads.toString());
     isSharing = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
+    form = context.read<NearbyService>().payloads[0];
+    // if form has content then add the respective fields to the response
+    if(form.isNotEmpty 
+      && form["type"] == "form" 
+      && response["content"].isEmpty) {
+      initFunc();
+    }
   }
   
   @override
@@ -66,13 +65,41 @@ class ResponsePageState extends State<ResponsePage> {
     super.dispose();
   }
   
+  List<TextEditingController> controllers = [];
+  
+  void initFunc() {
+    response = {
+      "type": "response",
+      "content": [],
+    };
+    
+    for (var i = 0; i < form["content"].length; i++) {
+      
+      controllers.add(TextEditingController());
+      var resItem = form["content"][i];
+      
+      if(resItem["type"] == QuestionTypes.singleLine.value
+        || resItem["type"] == QuestionTypes.multiLine.value) {
+        resItem["response"] = "";
+      } else if(resItem["type"] == QuestionTypes.multipleChoice.value
+        || resItem["type"] == QuestionTypes.dropdown.value) {
+        resItem["selected"] = 0;
+      } else if(resItem["type"] == QuestionTypes.checkbox.value) {
+        resItem["checked"] = [];
+      }
+      
+      response["content"].add(resItem);
+    }
+  }
+  
   void catchError() {
     if(!mounted) return;
     if(context.read<NearbyService>().error != null || (context.read<NearbyService>().connectedDevices.isEmpty && (isSharing ?? false))) {
       // developer.log(context.read<NearbyService>().error.toString());
       Provider.of<NearbyService>(context, listen: false).payloads = [{}];
       context.read<NearbyService>().error = null;
-      ModalRoute.of(context)?.settings.name == "/responsePage" ? Navigator.pop(context) : null;
+      // ModalRoute.of(context)?.settings.name == "/responsePage" ? Navigator.pop(context) : null;
+      Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
     }
   }
   
@@ -90,34 +117,129 @@ class ResponsePageState extends State<ResponsePage> {
             Container(
               padding: const EdgeInsets.all(10),
               child: Column(
-                children: [
-                  ListView.builder(
-                    itemCount: context.watch<NearbyService>().payloads.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Text(context.watch<NearbyService>().payloads[index].toString());
-                    },
-                  ),
-                  
+                children: [                  
                   if (isSharing == null)
                   ...[
                     const CircularProgressIndicator(),
                   ]
                   else if (!isSharing!)
                   ...[
-                    const Text("Form"),
-                    Text(response.toString()),
-                    Text("Response sent: ${context.watch<NearbyService>().payloads[0].containsKey('sent') ? context.watch<NearbyService>().payloads[0]['sent'].toString() : "false"}"),
-                    ElevatedButton(
-                      onPressed: (){
-                        if(context.read<NearbyService>().payloads[0].containsKey("device_id")){
-                          NearbyService().requestConnection(
-                            context.read<NearbyService>().payloads[0]['device_id'].toString(),
-                            jsonEncode(response)
-                          );
-                        }
-                      },
-                      child: const Text('Send'),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          Text(form['title']),
+                          Text(form['description']),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: form['content'].length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    children: [
+                                      Text(form['content'][index]['title']),
+                                      
+                                      if(form['content'][index]['type'] == QuestionTypes.singleLine.value
+                                        || form['content'][index]['type'] == QuestionTypes.multiLine.value)
+                                        ...[
+                                          TextFormField(
+                                            controller: controllers[index],
+                                            keyboardType: (form['content'][index]['type'] == QuestionTypes.singleLine.value)
+                                              ? TextInputType.text 
+                                              : TextInputType.multiline,
+                                            maxLines: (form['content'][index]['type'] == QuestionTypes.singleLine.value)
+                                              ? 1 
+                                              : null,
+                                            onChanged: (value) {
+                                              response['content'][index]['response'] = value;
+                                            },
+                                            decoration: const InputDecoration(
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                              border: UnderlineInputBorder(),
+                                            ),
+                                          )
+                                        ]
+                                      else if(form['content'][index]['type'] == QuestionTypes.multipleChoice.value
+                                        || form['content'][index]['type'] == QuestionTypes.checkbox.value)
+                                        ...[
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemCount: form['content'][index]['options'].length,
+                                            itemBuilder: (context, index2) {
+                                              return Row(
+                                                children: [
+                                                  if(form['content'][index]['type'] == QuestionTypes.multipleChoice.value)
+                                                    Radio(
+                                                      value: index2,
+                                                      groupValue: response['content'][index]['selected'],
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          response['content'][index]['selected'] = value as int;
+                                                        });
+                                                      },
+                                                    )
+                                                  else
+                                                    Checkbox(
+                                                      value: response['content'][index]['checked'].contains(index2),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          if(value == true) {
+                                                            response['content'][index]['checked'].add(index2);
+                                                          } else {
+                                                            response['content'][index]['checked'].remove(index2);
+                                                          }
+                                                        });
+                                                      },
+                                                    ),
+                                                  Text(form['content'][index]['options'][index2]),
+                                                ],
+                                              );
+                                            },
+                                          )
+                                        ]
+                                      else if(form['content'][index]['type'] == QuestionTypes.dropdown.value)
+                                        ...[
+                                          DropdownButton(
+                                            value: response['content'][index]['selected'],
+                                            items: form['content'][index]['options'].map<DropdownMenuItem<int>>(
+                                              (e) => DropdownMenuItem<int>(
+                                                value: form['content'][index]['options'].indexOf(e),
+                                                child: Text(e),
+                                              ),
+                                            ).toList() ,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                response['content'][index]['selected'] = value as int;
+                                              });
+                                            },
+                                          )
+                                        ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          
+                          Text("Response sent: ${context.watch<NearbyService>().payloads[0].containsKey('sent') ? context.watch<NearbyService>().payloads[0]['sent'].toString() : "false"}"),
+                          ElevatedButton(
+                            onPressed: (){
+                              if(context.read<NearbyService>().payloads[0].containsKey("device_id")){
+                                NearbyService().requestConnection(
+                                  context.read<NearbyService>().payloads[0]['device_id'].toString(),
+                                  jsonEncode(response)
+                                );
+                              }
+                            },
+                            child: const Text('Send'),
+                          ),
+                        ],
+                      ),
                     ),
                   ] 
                   else

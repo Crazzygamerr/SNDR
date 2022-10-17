@@ -8,7 +8,45 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 
-// enum ExchangeType { none, form, share }
+enum QuestionTypes {
+  singleLine,
+  multiLine,
+  multipleChoice,
+  checkbox,
+  dropdown
+}
+// extend QuestionTypes with QuestionTypesExtension;
+extension QuestionTypesExtension on QuestionTypes {
+  String get name {
+    switch (this) {
+      case QuestionTypes.singleLine:
+        return 'Single Line';
+      case QuestionTypes.multiLine:
+        return 'Multi Line';
+      case QuestionTypes.multipleChoice:
+        return 'Multiple Choice';
+      case QuestionTypes.checkbox:
+        return 'Checkbox';
+      case QuestionTypes.dropdown:
+        return 'Dropdown';
+    }
+  }
+  
+  String get value {
+    switch (this) {
+      case QuestionTypes.singleLine:
+        return 'singleLine';
+      case QuestionTypes.multiLine:
+        return 'multiLine';
+      case QuestionTypes.multipleChoice:
+        return 'multipleChoice';
+      case QuestionTypes.checkbox:
+        return 'checkbox';
+      case QuestionTypes.dropdown:
+        return 'dropdown';
+    }
+  }
+}
 
 class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
