@@ -10,11 +10,10 @@ import 'package:sdl/Rooms.dart';
 // Service restart bugs
   // remove all listeners & use didChangeDependencies
 // Camera and other permissions
-// form modification & error handling
-// unique id for forms 
-// Rate limiting
 // Camera options like flash
+// remove all listeners & use didChangeDependencies
 // msg send time & long press options
+// form modification & error handling
 // Refactoring & code cleanup
 // Optimizations
 
@@ -84,8 +83,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     default:
       return MaterialPageRoute(
         builder: (_) => Scaffold(
-          body: Center(
-            child: Text('No route defined for ${settings.name}')),
+          body: SafeArea(
+            child: Center(
+              child: Text('No route defined for ${settings.name}')),
+          ),
         ));
   }
 }
