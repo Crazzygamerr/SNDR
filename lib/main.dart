@@ -6,11 +6,17 @@ import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
 import 'package:sdl/Rooms.dart';
 
-// unique id for forms 
-// Rate limiting
 // Navigation bugs
 // Service restart bugs
+  // remove all listeners & use didChangeDependencies
 // Camera and other permissions
+// form modification & error handling
+// unique id for forms 
+// Rate limiting
+// Camera options like flash
+// msg send time & long press options
+// Refactoring & code cleanup
+// Optimizations
 
 void main() => runApp(const MyApp());
 
