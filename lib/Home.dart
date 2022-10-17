@@ -1,5 +1,5 @@
-import 'dart:developer' as developer;
 
+// import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
@@ -40,37 +40,47 @@ class HomeState extends State<Home> {
     }
   }
   
+  // CameraController? controller;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SNDR'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/createForm');
-            }, 
-            child: const Text('Form'),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/createForm');
+                }, 
+                child: const Text('Form'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/rooms');
+                }, 
+                child: const Text('Rooms'),
+              ),
+              // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     // List<CameraDescription> cameras = await availableCameras();
+              //     // controller = CameraController(cameras[0], ResolutionPreset.medium);
+              //     // controller!.initialize().then((_) {
+              //     //   if(!mounted) return;
+              //     //   context.read<NearbyService>().cameraController = controller;
+              //     //   setState(() {});
+              //     // });
+              //   }, 
+              //   child: const Text('Test'),
+              // ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/rooms');
-            }, 
-            child: const Text('Rooms'),
-          ),
-          ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
-          ElevatedButton(
-            onPressed: () {
-              // developer.log(context.read<NearbyService>().payloads[0].containsKey("content").toString());
-              developer.log(context.read<NearbyService>().foundDevices.toString());
-              developer.log(context.read<NearbyService>().connectedDevices.toString());
-            }, 
-            child: const Text('Test'),
-          ),
-        ],
+        ),
       ),
     );
   }

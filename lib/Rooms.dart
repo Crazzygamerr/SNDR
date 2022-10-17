@@ -17,7 +17,7 @@ class RoomsState extends State<Rooms> {
   // void activate() {
     super.initState();
     super.activate();
-    developer.log("init");
+    // developer.log("init");
     startDis();    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NearbyService>().payloads = [{}];
@@ -66,10 +66,7 @@ class RoomsState extends State<Rooms> {
       appBar: AppBar(
         title: const Text("Rooms"),
       ),
-      body: SizedBox(
-        // max height and width
-        height: double.infinity,
-        width: double.infinity,
+      body: SafeArea(
         child: ListView.builder(
           itemCount: context.watch<NearbyService>().foundDevices.length,
           itemBuilder: (context, index) {

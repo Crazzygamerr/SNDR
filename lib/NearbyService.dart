@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -8,9 +7,46 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
-import 'package:path_provider/path_provider.dart';
 
-// enum ExchangeType { none, form, share }
+enum QuestionTypes {
+  singleLine,
+  multiLine,
+  multipleChoice,
+  checkbox,
+  dropdown
+}
+// extend QuestionTypes with QuestionTypesExtension;
+extension QuestionTypesExtension on QuestionTypes {
+  String get name {
+    switch (this) {
+      case QuestionTypes.singleLine:
+        return 'Single Line';
+      case QuestionTypes.multiLine:
+        return 'Multi Line';
+      case QuestionTypes.multipleChoice:
+        return 'Multiple Choice';
+      case QuestionTypes.checkbox:
+        return 'Checkbox';
+      case QuestionTypes.dropdown:
+        return 'Dropdown';
+    }
+  }
+  
+  String get value {
+    switch (this) {
+      case QuestionTypes.singleLine:
+        return 'singleLine';
+      case QuestionTypes.multiLine:
+        return 'multiLine';
+      case QuestionTypes.multipleChoice:
+        return 'multipleChoice';
+      case QuestionTypes.checkbox:
+        return 'checkbox';
+      case QuestionTypes.dropdown:
+        return 'dropdown';
+    }
+  }
+}
 
 class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
@@ -195,7 +231,6 @@ class NearbyService with ChangeNotifier {
               if(payload.containsKey('content')) {
                 payload["device_id"] = endid;
                 payloads.insert(0, payload);
-                notifyListeners();
                 if(isAdvertising) {
                   await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode('{"type": "form", "ack": true}')));
                 }
@@ -210,7 +245,6 @@ class NearbyService with ChangeNotifier {
               if(isDiscovering){
                 await Nearby().disconnectFromEndpoint(id);
                 connectedDevices.remove(id);
-                notifyListeners();
               }
             } else if(payload["type"] == "share") {
               if(payload["contentType"] == "filename") {
@@ -224,9 +258,11 @@ class NearbyService with ChangeNotifier {
                 if(payload["content"] == "open") {
                   payload["device_id"] = endid;
                   payloads.insert(0, payload);
-                  notifyListeners();
                 } else if(payload["content"] == "close") {
-                  var p = payloads.firstWhere((element) => element["contentType"] == "camera" && element["content"] == "close");
+                  var p = payloads.firstWhere((element) =>
+                    element["contentType"] == "camera" 
+                    && element["content"] == "open",
+                    orElse: () => {});
                   payloads.remove(p);
                 } else if(payload["content"] == "clickImage") {
                   if (cameraController?.value.isInitialized ?? false) {
@@ -237,9 +273,7 @@ class NearbyService with ChangeNotifier {
               } else {
                 payloads.insert(0, payload);
               }
-              notifyListeners();
             }
-            
           } else if (pload.type == PayloadType.FILE) {
             // developer.log("Insert ${pload.id} ${pload.uri ?? ""}");
             payloads.insert(0, {
@@ -252,6 +286,7 @@ class NearbyService with ChangeNotifier {
             });
             // developer.log(payloads.toString());
           }
+          notifyListeners();
         },
         onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
           // developer.log("Update ${payloadTransferUpdate.id}: ${payloadTransferUpdate.status}");
@@ -270,23 +305,21 @@ class NearbyService with ChangeNotifier {
   }
   
   Future<void> checkAndMoveFile(String id) async {
-    var filePayload = payloads
-      .firstWhere((element) => 
+    var filePayload = payloads.firstWhere((element) => 
       element["payload_id"].toString() == id 
       && element["moved"] == false,
       orElse: () => {}
     );
-    var payload = payloads
-      .firstWhere((element) => 
+    var payload = payloads.firstWhere((element) => 
       element["payload_id"].toString() == id 
       && element["filename"] != null,
       orElse: () => {}
     );
-    // developer.log("Check and move called");
     if(filePayload.isNotEmpty && payload.isNotEmpty) {
       final b = await moveFileFromUri(filePayload["content"], payload["filename"]);
       if(b) {
         payloads[payloads.indexOf(filePayload)]["moved"] = true;
+        payloads[payloads.indexOf(payload)]["moved"] = true;
       }
       notifyListeners();
     }
@@ -355,26 +388,31 @@ class NearbyService with ChangeNotifier {
   //   return b;
   // }
   
-  Future<void> sendBytesPayload(Map<String, dynamic> payload) async {
+  Future<void> sendBytesPayload(
+    Map<String, dynamic> payload, 
+    {bool addToPayloads = true}
+    ) async {
     await Nearby().sendBytesPayload(
       connectedDevices.keys.toList()[0], 
       Uint8List.fromList(utf8.encode(jsonEncode(payload)))
-    );
+    ).then((value) {
+      if(addToPayloads) {
+        payload["sent"] = true;
+        payloads.insert(0, payload);
+        notifyListeners();
+      }
+    });
   }
   
   Future<void> sendFilePayload(File file) async {
     String id = connectedDevices.keys.first;      /// The file is sent to the first connected
     var payloadId = await Nearby().sendFilePayload(id, file.path);
-    Nearby().sendBytesPayload(
-      id,
-      Uint8List.fromList(utf8.encode(
-        jsonEncode({
-          "type": "share",
-          "contentType": "filename",
-          "payload_id": payloadId,
-          "filename": file.path.split('/').last
-        })
-      )));
+    sendBytesPayload({
+      "type": "share",
+      "contentType": "filename",
+      "payload_id": payloadId,
+      "filename": file.path.split('/').last
+    });
   }
   
   Future<void> stopAdvertising() async {
