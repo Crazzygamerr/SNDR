@@ -6,16 +6,18 @@ import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
 import 'package:sdl/Rooms.dart';
 
+// TODO: Mark attendance
 // Navigation bugs
 // Service restart bugs
   // remove all listeners & use didChangeDependencies
-// Camera and other permissions
+// Camera and other permissions - Ila
 // Camera options like flash
 // remove all listeners & use didChangeDependencies
 // msg send time & long press options
-// form modification & error handling
+// form modification & error handling - Nivi
 // Refactoring & code cleanup
 // Optimizations
+// export responses - Chanchala
 
 void main() => runApp(const MyApp());
 
