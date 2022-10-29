@@ -298,9 +298,9 @@ class CreateFormState extends State<CreateForm> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // NearbyService().stopAdvertising();
+                      NearbyService().stopAdvertising();
                       // developer.log(QuestionTypes.dropdown.value);
-                      developer.log(const JsonEncoder.withIndent("  ").convert(form));
+                      // developer.log(const JsonEncoder.withIndent("  ").convert(form));
                     },
                     child: const Text('Close'),
                   ),
