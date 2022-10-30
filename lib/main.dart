@@ -6,27 +6,6 @@ import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
 import 'package:sdl/Rooms.dart';
 
-// TODO: Mark attendance & UUID
-// Rate limiting
-// Room names
-
-// TODO: Fix response question names 
-// TODO: Remove multi device connect in share
-// Navigation bugs
-// Service restart bugs
-  // remove all listeners & use didChangeDependencies
-
-// Camera and other permissions - Ila
-// form modification & error handling - Nivi
-// export responses - Chanchala
-
-// Duplicate form questions
-// Camera preview & options like flash
-// msg send time & long press options
-
-// Refactoring & code cleanup
-// Optimizations
-
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
