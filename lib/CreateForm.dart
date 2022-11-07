@@ -1,8 +1,9 @@
 
-import 'dart:convert';
-import 'dart:developer' as developer;
+import 'dart:io';
 
+import 'package:flutter_excel/excel.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 
@@ -42,6 +43,39 @@ class CreateFormState extends State<CreateForm> {
   // bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
   List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
+  
+  void exportResponse() {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+    
+    context.read<NearbyService>().payloads.forEach((element) {
+      if(element.containsKey("content")) {
+        List<String> row = [element["device_id"]];
+        element["content"].forEach((element) {
+          if(element["type"] == QuestionTypes.singleLine.value 
+            || element["type"] == QuestionTypes.multiLine.value) {
+            row.add(element["response"]);
+          } else if(element["type"] == QuestionTypes.checkbox.value) {
+            String checked = "";
+            for(int i=0;i<element["checked"].length;i++) {
+              checked += element["options"][element["checked"][i]];
+              if(i != element["checked"].length-1) checked += ", ";
+            }
+            row.add(checked);
+          } else if(element["type"] == QuestionTypes.multipleChoice.value
+            || element["type"] == QuestionTypes.dropdown.value) {
+            row.add(element["options"][element["selected"]]);
+          }
+        });
+        sheet.appendRow(row);
+      }
+    });
+    
+    var bytes = excel.save();
+    File(path.join("/storage/emulated/0/Download/", "SNDR Responses.xlsx"))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(bytes ?? []);
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -252,9 +286,9 @@ class CreateFormState extends State<CreateForm> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // NearbyService().stopAdvertising();
+                      NearbyService().stopAdvertising();
                       // developer.log(QuestionTypes.dropdown.value);
-                      developer.log(const JsonEncoder.withIndent("  ").convert(form));
+                      // developer.log(const JsonEncoder.withIndent("  ").convert(form));
                     },
                     child: const Text('Close'),
                   ),
@@ -355,14 +389,12 @@ class CreateFormState extends State<CreateForm> {
                 },
               ),
 
-              // ElevatedButton(
-              //   onPressed: () {
-              //     // developer.log(jsonEncode(form).runtimeType.toString());
-              //     // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
-              //     developer.log(context.read<NearbyService>().payloads.toString());
-              //   },
-              //   child: const Text('Test'),
-              // ),
+              ElevatedButton(
+                onPressed: () {
+                  exportResponse();
+                },
+                child: const Text('Export Responses'),
+              ),
             ],
           ),
         ),

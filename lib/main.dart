@@ -90,8 +90,7 @@ class PageViewWidgetState extends State<PageViewWidget> {
     // Exit chat if disconnected
     if(nearbyService.error != null
         || (
-          pageController.page == 3
-          && nearbyService.connectedDevices.isEmpty 
+          nearbyService.connectedDevices.isEmpty 
           && (nearbyService.payloads[0].containsKey("type") 
             ? nearbyService.payloads[0]["type"] == "share" 
             : false))) {
