@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ResponsePage extends StatefulWidget {
   const ResponsePage({Key? key}) : super(key: key);
@@ -330,23 +331,32 @@ class ResponsePageState extends State<ResponsePage> {
                           (!isCameraOpen) ? IconButton(
                             icon: const Icon(Icons.camera_alt),
                             onPressed: () async {
-                              List<CameraDescription> cameras = await availableCameras();
-                              controller = CameraController(cameras[0], ResolutionPreset.medium);
-                              controller!.initialize().then((_) {
-                                if(!mounted) return;
-                                context.read<NearbyService>().cameraController = controller;
-                                setState(() {
-                                  isCameraOpen = true;
+                              var status = await Permission.camera.status;
+                              if(status.isDenied){
+                                openAppSettings();
+                              } else {
+                                List<
+                                    CameraDescription> cameras = await availableCameras();
+                                controller = CameraController(
+                                    cameras[0], ResolutionPreset.medium);
+                                controller!.initialize().then((_) {
+                                  if (!mounted) return;
+                                  context
+                                      .read<NearbyService>()
+                                      .cameraController = controller;
+                                  setState(() {
+                                    isCameraOpen = true;
+                                  });
+                                  NearbyService().sendBytesPayload(
+                                      {
+                                        "type": "share",
+                                        "contentType": "camera",
+                                        "content": "open",
+                                      },
+                                      addToPayloads: false
+                                  );
                                 });
-                                NearbyService().sendBytesPayload(
-                                  {
-                                    "type": "share",
-                                    "contentType": "camera",
-                                    "content": "open",
-                                  },
-                                  addToPayloads: false
-                                );
-                              });
+                              }
                             },
                           ) : IconButton(
                             icon: const Icon(Icons.close),

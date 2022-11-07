@@ -1,4 +1,5 @@
 
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
@@ -30,7 +31,7 @@ class CreateFormState extends State<CreateForm> {
       context.read<NearbyService>().addListener(goToConnectedPage);
     });
   }
-  
+
   void catchError() {
     if(!mounted) return;
     if(context.read<NearbyService>().error != null) {
@@ -56,7 +57,7 @@ class CreateFormState extends State<CreateForm> {
       });
     }
   }
-  
+
   @override
   void dispose() {
     NearbyService().stopAdvertising();
@@ -74,6 +75,7 @@ class CreateFormState extends State<CreateForm> {
   Map<String, dynamic> form = {
     "type": "form",
     "title": "Untitled Form",
+    "username":'',
     "description": "",
     "content": [
       {
@@ -88,6 +90,7 @@ class CreateFormState extends State<CreateForm> {
   
   bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
+  TextEditingController titleControllerr = TextEditingController(text: "Untitled Form"), descriptionControllerr = TextEditingController();
   List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
   
   @override
@@ -130,6 +133,7 @@ class CreateFormState extends State<CreateForm> {
               if(!isSharing)
               ...[
                 TextFormField(
+                  //initialValue: ,
                   decoration: const InputDecoration(
                     labelText: 'Form Title',
                     contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -137,6 +141,18 @@ class CreateFormState extends State<CreateForm> {
                   ),
                   controller: titleController,
                   onChanged: (v) => setState(() => form["title"] = v),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                //initialValue: ,
+                //enabled:false,
+                decoration: const InputDecoration(
+                    labelText: 'Username',
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    border: OutlineInputBorder(),
+                  ),
+                  controller: titleControllerr..text=Provider.of<NearbyService>(context, listen: false).userName.toString(),
+                  onChanged: (v) => Provider.of<NearbyService>(context, listen: false).userName=v,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -215,6 +231,8 @@ class CreateFormState extends State<CreateForm> {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index2) {
+                                  //print(index);
+                                  //print(index2);
                                   return Row(
                                     children: [
                                       if(form["content"][index]["type"] == QuestionTypes.multipleChoice.value)
@@ -271,6 +289,24 @@ class CreateFormState extends State<CreateForm> {
                   },
                 ),
                 const SizedBox(height: 10),
+
+
+                Card(
+                  child: TextButton(
+                    onPressed: () => setState(() {
+
+                      var length= form["content"].length-1;
+                      form["content"].add(form["content"][length]);
+
+                      //form["content"].add(LinkedHashMap.from(form["content"][length]));
+                      print(form["content"]);
+                      optionControllers.add([
+                        TextEditingController(text: "Option 1"),
+                      ]);
+                    }),
+                    child: const Text('Duplicate Question'),
+                  ),
+                ),
                 Card(
                   child: TextButton(
                     onPressed: () => setState(() {
@@ -300,13 +336,23 @@ class CreateFormState extends State<CreateForm> {
                     onPressed: () {
                       NearbyService().stopAdvertising();
                       // developer.log(QuestionTypes.dropdown.value);
+<<<<<<< Updated upstream
                       // developer.log(const JsonEncoder.withIndent("  ").convert(form));
+=======
+
+                      developer.log(const JsonEncoder.withIndent("  ").convert(form));
+
+>>>>>>> Stashed changes
                     },
                     child: const Text('Close'),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+                      String s=Provider.of<NearbyService>(context, listen: false).userName.toString();
+                      form['username']=s;
+                      print(s);
+                      print(form);
                     },
                     child: const Text('Open'),
                   ),

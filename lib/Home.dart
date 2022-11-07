@@ -39,6 +39,30 @@ class HomeState extends State<Home> {
       Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
     }
   }
+<<<<<<< Updated upstream
+=======
+  List<bool> permissions = [false, false, false, false];
+  void checkPermissions() async {
+    // permissions[0] = await Permission.location.isGranted;
+    // permissions[1] = await Permission.manageExternalStorage.isGranted;
+    // permissions[2] = await Permission.bluetooth.isGranted;
+    //Map<Permission, PermissionStatus> statuses = await [
+      //Permission.location,
+      //Permission.camera,
+      //Permission.bluetooth,
+      //Permission.bluetoothScan,
+      //Permission.bluetoothConnect,
+      //.bluetoothAdvertise,
+      //Permission.manageExternalStorage,
+      //Permission.nearbyWifiDevices,
+      //Permission.storage
+      //add more permission to request here.
+    //].request();
+    //print(statuses[Permission.location]);
+    //permissions[3] = await Nearby().checkLocationPermission() && await Nearby().checkLocationEnabled();
+    setState(() {});
+  }
+>>>>>>> Stashed changes
   
   // CameraController? controller;
   
