@@ -3,8 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
-import 'dart:developer' as developer;
-
+import 'package:permission_handler/permission_handler.dart';
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -13,6 +12,33 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  
+  @override
+  void initState() {
+    super.initState();
+    checkPermissions();
+  }
+  
+  List<bool> permissions = [false, false, false, false];
+  void checkPermissions() async {
+    // permissions[0] = await Permission.location.isGranted;
+    // permissions[1] = await Permission.manageExternalStorage.isGranted;
+    // permissions[2] = await Permission.bluetooth.isGranted;
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+      Permission.camera,
+      Permission.bluetooth,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+      Permission.manageExternalStorage,
+      Permission.nearbyWifiDevices,
+      Permission.storage
+      //add more permission to request here.
+    ].request();
+    //permissions[3] = await Nearby().checkLocationPermission() && await Nearby().checkLocationEnabled();
+    setState(() {});
+  }
   
   @override
   Widget build(BuildContext context) {

@@ -6,19 +6,8 @@ import 'package:sdl/CreateForm.dart';
 import 'package:sdl/Home.dart';
 import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sdl/Rooms.dart';
-
-// unique id for forms 
-// Rate limiting
-// Navigation bugs
-// Service restart bugs
-// Camera and other permissions
-// Camera options like flash
-// remove all listeners & use didChangeDependencies
-// msg send time & long press options
-// form modification & error handling
-// Refactoring & code cleanup
-// Optimizations
 
 void main() => runApp(const MyApp());
 
@@ -29,26 +18,14 @@ class MyApp extends StatefulWidget {
   MyAppState createState() => MyAppState();
 }
 
-class MyAppState extends State<MyApp> { 
-  
-  bool permission = false; 
-  
-  @override
-  void initState() {
-    super.initState();
-    initialize();
-  }
-  
-  void initialize() async {
-    permission = await NearbyService().requestPermissions();
-    if(permission) {
-      
-    }
-  }
+class MyAppState extends State<MyApp> {
+
+  bool permission = false;
   
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
+
       create: (context) => NearbyService(),
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
