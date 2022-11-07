@@ -1,8 +1,9 @@
 
-import 'dart:convert';
-import 'dart:developer' as developer;
+import 'dart:io';
 
+import 'package:flutter_excel/excel.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 
@@ -19,53 +20,6 @@ class CreateForm extends StatefulWidget {
 }
 
 class CreateFormState extends State<CreateForm> {
-  
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NearbyService>().removeListener(catchError);
-      context.read<NearbyService>().removeListener(goToConnectedPage);
-      context.read<NearbyService>().addListener(catchError);
-      context.read<NearbyService>().addListener(goToConnectedPage);
-    });
-  }
-  
-  void catchError() {
-    if(!mounted) return;
-    if(context.read<NearbyService>().error != null) {
-      // if(context.read<NearbyService>().isAdvertising) {
-      //   context.read<NearbyService>().startAdvertising(form);
-      // }
-      context.read<NearbyService>().error = null;
-    }
-  }
-  
-  void goToConnectedPage() {
-    if(!mounted) return;
-    if(
-      context.read<NearbyService>().connectedDevices.isNotEmpty 
-      && isSharing 
-      && !context.read<NearbyService>().payloads[0].containsKey("contentType")
-    ) {
-      Provider.of<NearbyService>(context, listen: false).payloads = [{"type": "share", "contentType": "ack"}];
-      Navigator.of(context).pushNamed('/responsePage').then((value) {
-        context.read<NearbyService>().payloads = [{}];
-        NearbyService().stopAllEndpoints();
-        NearbyService().startAdvertising(shareMsg, isSharing: true);
-      });
-    }
-  }
-  
-  @override
-  void dispose() {
-    NearbyService().stopAdvertising();
-    NearbyService().stopDiscovery();
-    NearbyService().stopAllEndpoints();
-    // context.read<NearbyService>().removeListener(catchError);
-    // context.read<NearbyService>().removeListener(goToConnectedPage);
-    super.dispose();
-  }
   
   Map<String, dynamic> shareMsg = {
     "type": "share",
@@ -86,9 +40,42 @@ class CreateFormState extends State<CreateForm> {
     ],
   };
   
-  bool isSharing = false;
+  // bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
   List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
+  
+  void exportResponse() {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+    
+    context.read<NearbyService>().payloads.forEach((element) {
+      if(element.containsKey("content")) {
+        List<String> row = [element["device_id"]];
+        element["content"].forEach((element) {
+          if(element["type"] == QuestionTypes.singleLine.value 
+            || element["type"] == QuestionTypes.multiLine.value) {
+            row.add(element["response"]);
+          } else if(element["type"] == QuestionTypes.checkbox.value) {
+            String checked = "";
+            for(int i=0;i<element["checked"].length;i++) {
+              checked += element["options"][element["checked"][i]];
+              if(i != element["checked"].length-1) checked += ", ";
+            }
+            row.add(checked);
+          } else if(element["type"] == QuestionTypes.multipleChoice.value
+            || element["type"] == QuestionTypes.dropdown.value) {
+            row.add(element["options"][element["selected"]]);
+          }
+        });
+        sheet.appendRow(row);
+      }
+    });
+    
+    var bytes = excel.save();
+    File(path.join("/storage/emulated/0/Download/", "SNDR Responses.xlsx"))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(bytes ?? []);
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -111,8 +98,8 @@ class CreateFormState extends State<CreateForm> {
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton(
-                    value: isSharing,
-                    onChanged: (v) => setState(() => isSharing = v as bool),
+                    value: context.watch<NearbyService>().isSharing,
+                    onChanged: (v) => setState((){context.read<NearbyService>().isSharing = v as bool;}),
                     items: const [
                       DropdownMenuItem(
                         value: true,
@@ -127,13 +114,13 @@ class CreateFormState extends State<CreateForm> {
                 ),
               ),
               const SizedBox(height: 15),
-              if(!isSharing)
+              if(!context.watch<NearbyService>().isSharing)
               ...[
                 TextFormField(
                   decoration: const InputDecoration(
                     labelText: 'Form Title',
                     contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder()
                   ),
                   controller: titleController,
                   onChanged: (v) => setState(() => form["title"] = v),
@@ -170,6 +157,7 @@ class CreateFormState extends State<CreateForm> {
                                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                       border: UnderlineInputBorder(),
                                     ),
+                                    onChanged: (v) => setState(() => form["content"][index]["title"] = v),
                                   ),
                                 ),
                                 IconButton(
@@ -306,7 +294,7 @@ class CreateFormState extends State<CreateForm> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+                      NearbyService().startAdvertising(context.read<NearbyService>().isSharing ? shareMsg : form);
                     },
                     child: const Text('Open'),
                   ),
@@ -320,7 +308,7 @@ class CreateFormState extends State<CreateForm> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, responseIndex) {
                   
-                  if (payloads[responseIndex].isEmpty) return Container();
+                  if (payloads[responseIndex].isEmpty || !payloads[responseIndex].containsKey("content")) return Container();
                   return ExpansionTile(
                     // title: Text(payloads[responseIndex]["name"]),
                     title: Text(payloads[responseIndex]["device_id"]),
@@ -401,14 +389,12 @@ class CreateFormState extends State<CreateForm> {
                 },
               ),
 
-              // ElevatedButton(
-              //   onPressed: () {
-              //     // developer.log(jsonEncode(form).runtimeType.toString());
-              //     // developer.log(jsonDecode('{"type":"form","fields":[{"id":1,"title":"What is your name?"},{"id":2,"title":"What is your age?"}]}').runtimeType.toString());
-              //     developer.log(context.read<NearbyService>().payloads.toString());
-              //   },
-              //   child: const Text('Test'),
-              // ),
+              ElevatedButton(
+                onPressed: () {
+                  exportResponse();
+                },
+                child: const Text('Export Responses'),
+              ),
             ],
           ),
         ),

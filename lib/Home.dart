@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -16,31 +16,29 @@ class HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NearbyService>().removeListener(catchError);
-      context.read<NearbyService>().addListener(catchError);
-    });
+    checkPermissions();
   }
   
-  @override
-  void dispose() {
-    super.dispose();
-    // context.read<NearbyService>().removeListener(catchError);
+  List<bool> permissions = [false, false, false, false];
+  void checkPermissions() async {
+    // permissions[0] = await Permission.location.isGranted;
+    // permissions[1] = await Permission.manageExternalStorage.isGranted;
+    // permissions[2] = await Permission.bluetooth.isGranted;
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+      Permission.camera,
+      Permission.bluetooth,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+      Permission.manageExternalStorage,
+      Permission.nearbyWifiDevices,
+      Permission.storage
+      //add more permission to request here.
+    ].request();
+    //permissions[3] = await Nearby().checkLocationPermission() && await Nearby().checkLocationEnabled();
+    setState(() {});
   }
-  
-  void catchError() {
-    if(!mounted) return;
-    if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandledByHome == false) {
-      // Provider.of<NearbyService>(context, listen: false).error = null;
-      // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-      context.read<NearbyService>().foundDevices = {};
-      NearbyService().stopAllEndpoints();
-      // NearbyService().startDiscovery();
-      Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
-    }
-  }
-  
-  // CameraController? controller;
   
   @override
   Widget build(BuildContext context) {
@@ -55,13 +53,15 @@ class HomeState extends State<Home> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/createForm');
+                  // Navigator.pushNamed(context, '/createForm');
+                  Provider.of<PageController>(context, listen: false).jumpToPage(1);
                 }, 
                 child: const Text('Form'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/rooms');
+                  // Navigator.pushNamed(context, '/rooms');
+                  Provider.of<PageController>(context, listen: false).jumpToPage(2);
                 }, 
                 child: const Text('Rooms'),
               ),
