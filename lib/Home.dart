@@ -65,6 +65,12 @@ class HomeState extends State<Home> {
                 }, 
                 child: const Text('Rooms'),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/savedForms');
+                },
+                child: const Text('Saved Forms'),
+              ),
               // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
               // ElevatedButton(
               //   onPressed: () async {

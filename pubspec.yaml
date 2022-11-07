@@ -41,6 +41,7 @@ dependencies:
   file_picker: ^5.2.1
   camera: ^0.10.0+3
   open_filex: ^4.1.1
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,13 @@
 
 import 'dart:convert';
 import 'dart:developer' as developer;
-
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'dart:io';
+// import 'package:intl/intl.dart';
+
 
 class CreateForm extends StatefulWidget {
   // final FormType formType;
@@ -19,7 +22,13 @@ class CreateForm extends StatefulWidget {
 }
 
 class CreateFormState extends State<CreateForm> {
-  
+  // String txt2="";
+  bool _fileExists = false;
+  late File _filePath;
+  Map<String, dynamic> _json = {};
+  late String _jsonString;
+  // int counter=0;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +38,66 @@ class CreateFormState extends State<CreateForm> {
       context.read<NearbyService>().addListener(catchError);
       context.read<NearbyService>().addListener(goToConnectedPage);
     });
+
+    _readJson();
+  }
+
+  // saveJson(source) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   // int counterValue = prefs.getInt("counter") ?? 0;
+  //
+  //   prefs.setString('counterValue',jsonDecode(source));
+  //   // SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   // prefs.setString('stringValue', "abc");
+  //   // setState(() {
+  //   //   counter = counter+1
+  //   // });
+  // }
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    String txt=form["title"].toString();
+    return File('$path/$txt''.json');
+  }
+
+  void _writeJson(String key, dynamic value) async {
+
+    Map<String, dynamic> _newJson = {key: value};
+
+    _json.addAll(_newJson);
+
+    _jsonString = jsonEncode(_json);
+
+    _filePath.writeAsString(_jsonString);
+  }
+  //
+  // void _writeJson(dynamic form) async {
+  //
+  //   _jsonString = jsonEncode(_json);
+  //
+  //     _filePath.writeAsString(_jsonString);
+  // }
+
+
+
+  void _readJson() async {
+    _filePath = await _localFile;
+
+    _fileExists = await _filePath.exists();
+
+    if (_fileExists) {
+      try {
+        _jsonString = await _filePath.readAsString();
+        _json = jsonDecode(_jsonString);
+      } catch (e) {
+        print('Tried reading _file error: $e');
+      }
+    }
   }
   
   void catchError() {
@@ -64,6 +133,8 @@ class CreateFormState extends State<CreateForm> {
     NearbyService().stopAllEndpoints();
     // context.read<NearbyService>().removeListener(catchError);
     // context.read<NearbyService>().removeListener(goToConnectedPage);
+    // _controllerKey.dispose();
+    // _controllerValue.dispose();
     super.dispose();
   }
   
@@ -92,7 +163,9 @@ class CreateFormState extends State<CreateForm> {
   
   @override
   Widget build(BuildContext context) {
-     List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
+    DateTime now = DateTime.now();
+
+    List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
     
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -303,6 +376,22 @@ class CreateFormState extends State<CreateForm> {
                       developer.log(const JsonEncoder.withIndent("  ").convert(form));
                     },
                     child: const Text('Close'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+
+                      developer.log(const JsonEncoder.withIndent("  ").convert(form));
+                      //
+                      // // print(
+                      // //     '0. Input key: ${_controllerKey.text}; Input value: ${_controllerValue.text}\n-\n');
+                      // // counter=counter+1
+                      // _writeJson(form);
+                      _writeJson("${now.hour}:${now.minute}:${now.second}", form);
+                      final file = await _localFile;
+                      _fileExists = await file.exists();
+
+                    },
+                    child: const Text('Save'),
                   ),
                   ElevatedButton(
                     onPressed: () {

@@ -5,6 +5,7 @@ import 'package:sdl/Home.dart';
 import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
 import 'package:sdl/Rooms.dart';
+import 'package:sdl/SavedForms.dart';
 
 // unique id for forms 
 // Rate limiting
@@ -78,6 +79,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         settings: settings,
         builder: (_) => const CreateForm()
+      );
+    case '/savedForms':
+      return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SavedForms()
       );
     // case 'formPage':
     //   return MaterialPageRoute(builder: (_) => const TempPage());
