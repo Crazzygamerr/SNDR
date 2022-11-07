@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'dart:developer' as developer;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -12,35 +13,6 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NearbyService>().removeListener(catchError);
-      context.read<NearbyService>().addListener(catchError);
-    });
-  }
-  
-  @override
-  void dispose() {
-    super.dispose();
-    // context.read<NearbyService>().removeListener(catchError);
-  }
-  
-  void catchError() {
-    if(!mounted) return;
-    if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandledByHome == false) {
-      // Provider.of<NearbyService>(context, listen: false).error = null;
-      // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-      context.read<NearbyService>().foundDevices = {};
-      NearbyService().stopAllEndpoints();
-      // NearbyService().startDiscovery();
-      Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
-    }
-  }
-  
-  // CameraController? controller;
   
   @override
   Widget build(BuildContext context) {
@@ -55,13 +27,15 @@ class HomeState extends State<Home> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/createForm');
+                  // Navigator.pushNamed(context, '/createForm');
+                  Provider.of<PageController>(context, listen: false).jumpToPage(1);
                 }, 
                 child: const Text('Form'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/rooms');
+                  // Navigator.pushNamed(context, '/rooms');
+                  Provider.of<PageController>(context, listen: false).jumpToPage(2);
                 }, 
                 child: const Text('Rooms'),
               ),

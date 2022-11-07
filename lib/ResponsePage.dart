@@ -29,40 +29,17 @@ class ResponsePageState extends State<ResponsePage> {
   TextEditingController textController = TextEditingController();
   
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<NearbyService>().removeListener(catchError);
-      context.read<NearbyService>().addListener(catchError);
-      // payloadType = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] : "";
-      isSharing = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
-    });
-  }
-  
-  @override
   void didChangeDependencies() {
-    super.didChangeDependencies();
-    // payloadType = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] : "";
-    // developer.log(context.read<NearbyService>().payloads.toString());
-    isSharing = context.read<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
-    form = context.read<NearbyService>().payloads[0];
+    isSharing = context.watch<NearbyService>().payloads[0].containsKey("type") ? context.read<NearbyService>().payloads[0]["type"] == "share" : null;
+    form = context.watch<NearbyService>().payloads[0];
+    
     // if form has content then add the respective fields to the response
     if(form.isNotEmpty 
       && form["type"] == "form" 
       && response["content"].isEmpty) {
       initFunc();
     }
-  }
-  
-  @override
-  // void deactivate() {
-  void dispose() {
-    // context.read<NearbyService>().removeListener(catchError);
-    // context.read<NearbyService>().payloads = [{}];
-    // NearbyService().stopAllEndpoints();
-    // super.deactivate();
-    controller?.dispose();
-    super.dispose();
+    super.didChangeDependencies();
   }
   
   List<TextEditingController> controllers = [];
@@ -72,6 +49,7 @@ class ResponsePageState extends State<ResponsePage> {
       "type": "response",
       "content": [],
     };
+    controllers = [];
     
     for (var i = 0; i < form["content"].length; i++) {
       
@@ -89,17 +67,6 @@ class ResponsePageState extends State<ResponsePage> {
       }
       
       response["content"].add(resItem);
-    }
-  }
-  
-  void catchError() {
-    if(!mounted) return;
-    if(context.read<NearbyService>().error != null || (context.read<NearbyService>().connectedDevices.isEmpty && (isSharing ?? false))) {
-      // developer.log(context.read<NearbyService>().error.toString());
-      Provider.of<NearbyService>(context, listen: false).payloads = [{}];
-      context.read<NearbyService>().error = null;
-      // ModalRoute.of(context)?.settings.name == "/responsePage" ? Navigator.pop(context) : null;
-      Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
     }
   }
   
