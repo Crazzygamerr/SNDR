@@ -37,6 +37,13 @@ class MyAppState extends State<MyApp> {
   }
 }
 
+enum Pages {
+  home,
+  createForm,
+  rooms,
+  responsePage,
+}
+
 // PageViewWidget
 class PageViewWidget extends StatefulWidget {
   const PageViewWidget({Key? key}) : super(key: key);
@@ -54,7 +61,8 @@ class PageViewWidgetState extends State<PageViewWidget> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       pageController.addListener(() {
-        if(pageController.page == 0 || pageController.page == 1) {
+        if(pageController.page == Pages.home.index
+        || pageController.page == Pages.createForm.index) {
           NearbyService().stopAdvertising();
           NearbyService().stopDiscovery();
           NearbyService().stopAllEndpoints();
@@ -72,12 +80,12 @@ class PageViewWidgetState extends State<PageViewWidget> {
     // Go to connected page from create
     if(
       nearbyService.connectedDevices.isNotEmpty 
-      && pageController.page == 1
+      && pageController.page == Pages.createForm.index
       && nearbyService.isSharing
       && !nearbyService.payloads[0].containsKey("contentType")
     ) {
       nearbyService.payloads = [{"type": "share", "contentType": "ack"}];
-      pageController.jumpToPage(3);
+      pageController.jumpToPage(Pages.responsePage.index);
     }
     
     // Handle Error
@@ -96,7 +104,7 @@ class PageViewWidgetState extends State<PageViewWidget> {
             : false))) {
       
       nearbyService.payloads = [{}];
-      pageController.jumpToPage(0);
+      pageController.jumpToPage(Pages.home.index);
     }
     nearbyService.error = null;
     
