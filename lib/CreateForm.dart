@@ -96,7 +96,7 @@ class CreateFormState extends State<CreateForm> {
   @override
   Widget build(BuildContext context) {
      List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
-    
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -219,6 +219,7 @@ class CreateFormState extends State<CreateForm> {
                                 ),
                               ],
                             ),
+
                             if(
                               form["content"][index]["type"] == QuestionTypes.multipleChoice.value
                               || form["content"][index]["type"] == QuestionTypes.checkbox.value
@@ -233,6 +234,7 @@ class CreateFormState extends State<CreateForm> {
                                 itemBuilder: (context, index2) {
                                   //print(index);
                                   //print(index2);
+
                                   return Row(
                                     children: [
                                       if(form["content"][index]["type"] == QuestionTypes.multipleChoice.value)
@@ -282,6 +284,40 @@ class CreateFormState extends State<CreateForm> {
                                 ],
                               ),
                             ],
+                            Row(
+                              children: [
+                                const Text("Duplicate: "),
+                                Card(
+                                  child: TextButton(
+                                    onPressed: () => setState(() {
+
+                                      //var length= form["content"].length-1;
+                                      var l=form["content"][index]["options"].length-1;
+                                      form["content"].add(form["content"][index]);
+
+                                      //form["content"].add(LinkedHashMap.from(form["content"][length]));
+                                      //print(form["content"]);
+                                      optionControllers.add([
+                                        TextEditingController(text:form["content"][index]["options"][0] ),
+                                      ]);
+                                      for (var i = 0; i <= l; i++) {
+                                        // print(form["content"][length]["options"][i]);
+                                        optionControllers[form["content"].length-1].add(
+                                          TextEditingController(text:form["content"][index]["options"][i] ),
+                                        );
+                                      }
+                                      //form["content"].add({
+                                      //"type": form["content"][length]["type"] ,
+                                      //"title": form["content"][length]["title"] ,
+                                      //"options": form["content"][length]["options"]
+                                      //});
+
+                                    }),
+                                    child: const Text('Duplicate Question'),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       )
@@ -291,22 +327,7 @@ class CreateFormState extends State<CreateForm> {
                 const SizedBox(height: 10),
 
 
-                Card(
-                  child: TextButton(
-                    onPressed: () => setState(() {
 
-                      var length= form["content"].length-1;
-                      form["content"].add(form["content"][length]);
-
-                      //form["content"].add(LinkedHashMap.from(form["content"][length]));
-                      print(form["content"]);
-                      optionControllers.add([
-                        TextEditingController(text: "Option 1"),
-                      ]);
-                    }),
-                    child: const Text('Duplicate Question'),
-                  ),
-                ),
                 Card(
                   child: TextButton(
                     onPressed: () => setState(() {
@@ -336,13 +357,12 @@ class CreateFormState extends State<CreateForm> {
                     onPressed: () {
                       NearbyService().stopAdvertising();
                       // developer.log(QuestionTypes.dropdown.value);
-<<<<<<< Updated upstream
-                      // developer.log(const JsonEncoder.withIndent("  ").convert(form));
-=======
+
+                      // developer.log(const JsonEncoder.withIndent("  ").convert(form)
 
                       developer.log(const JsonEncoder.withIndent("  ").convert(form));
 
->>>>>>> Stashed changes
+
                     },
                     child: const Text('Close'),
                   ),

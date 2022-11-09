@@ -22,11 +22,9 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-<<<<<<< Updated upstream
+
     initialize();
-=======
-     initialize();
->>>>>>> Stashed changes
+
   }
   
   void initialize() async {

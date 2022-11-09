@@ -39,8 +39,8 @@ class HomeState extends State<Home> {
       Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
     }
   }
-<<<<<<< Updated upstream
-=======
+
+
   List<bool> permissions = [false, false, false, false];
   void checkPermissions() async {
     // permissions[0] = await Permission.location.isGranted;
@@ -62,7 +62,7 @@ class HomeState extends State<Home> {
     //permissions[3] = await Nearby().checkLocationPermission() && await Nearby().checkLocationEnabled();
     setState(() {});
   }
->>>>>>> Stashed changes
+
   
   // CameraController? controller;
   
