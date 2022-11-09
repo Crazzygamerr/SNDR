@@ -1,9 +1,9 @@
 
 // import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sdl/NearbyService.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:sdl/main.dart';
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -54,14 +54,14 @@ class HomeState extends State<Home> {
               ElevatedButton(
                 onPressed: () {
                   // Navigator.pushNamed(context, '/createForm');
-                  Provider.of<PageController>(context, listen: false).jumpToPage(1);
+                  Provider.of<PageController>(context, listen: false).jumpToPage(Pages.createForm.index);
                 }, 
                 child: const Text('Form'),
               ),
               ElevatedButton(
                 onPressed: () {
                   // Navigator.pushNamed(context, '/rooms');
-                  Provider.of<PageController>(context, listen: false).jumpToPage(2);
+                  Provider.of<PageController>(context, listen: false).jumpToPage(Pages.rooms.index);
                 }, 
                 child: const Text('Rooms'),
               ),
