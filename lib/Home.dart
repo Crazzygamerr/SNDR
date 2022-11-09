@@ -1,4 +1,3 @@
-
 // import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +11,6 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  
   @override
   void initState() {
     super.initState();
@@ -21,27 +19,29 @@ class HomeState extends State<Home> {
       context.read<NearbyService>().addListener(catchError);
     });
   }
-  
+
   @override
   void dispose() {
     super.dispose();
     // context.read<NearbyService>().removeListener(catchError);
   }
-  
+
   void catchError() {
-    if(!mounted) return;
-    if(context.read<NearbyService>().error != null && context.read<NearbyService>().errorHandledByHome == false) {
+    if (!mounted) return;
+    if (context.read<NearbyService>().error != null &&
+        context.read<NearbyService>().errorHandledByHome == false) {
       // Provider.of<NearbyService>(context, listen: false).error = null;
       // Provider.of<NearbyService>(context, listen: false).payloads = [{}];
       context.read<NearbyService>().foundDevices = {};
       NearbyService().stopAllEndpoints();
       // NearbyService().startDiscovery();
-      Provider.of<NearbyService>(context, listen: false).errorHandledByHome = true;
+      Provider.of<NearbyService>(context, listen: false).errorHandledByHome =
+          true;
     }
   }
-  
+
   // CameraController? controller;
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,14 +56,20 @@ class HomeState extends State<Home> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/createForm');
-                }, 
+                },
                 child: const Text('Form'),
               ),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/rooms');
-                }, 
+                },
                 child: const Text('Rooms'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/sampleFrontend');
+                },
+                child: const Text('Sample'),
               ),
               // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
               // ElevatedButton(
@@ -75,7 +81,7 @@ class HomeState extends State<Home> {
               //     //   context.read<NearbyService>().cameraController = controller;
               //     //   setState(() {});
               //     // });
-              //   }, 
+              //   },
               //   child: const Text('Test'),
               // ),
             ],
