@@ -40,7 +40,6 @@ class CreateFormState extends State<CreateForm> {
       context.read<NearbyService>().removeListener(goToConnectedPage);
       context.read<NearbyService>().addListener(catchError);
       context.read<NearbyService>().addListener(goToConnectedPage);
-      
       _readJson();
       _checkSaved();
     });
@@ -72,11 +71,12 @@ class CreateFormState extends State<CreateForm> {
   Future<void> _checkSaved() async {
     if(context.read<NearbyService>().isSaved==true){
       try {
-        developer.log("TRUE");
+        developer.log("TRUE1");
         developer.log(await readFile(context.read<NearbyService>().fileOpen));
         context.read<NearbyService>().form1 = jsonDecode(await readFile(context.read<NearbyService>().fileOpen)) as Map<String, dynamic>;
         developer.log("TRUE");
-        developer.log(context.read<NearbyService>().form1["Untitled Form"].toString());
+        developer.log(context.read<NearbyService>().fileOpen);
+        developer.log(context.read<NearbyService>().form1[context.read<NearbyService>().fileOpen.split('/').last.split('.').first.toString()].toString());
         setState((){
           form=context.read<NearbyService>().form1["Untitled Form"];
         });
@@ -89,6 +89,22 @@ class CreateFormState extends State<CreateForm> {
       catch (e) {
         print('Tried reading _file error: $e');
       }
+    }
+    else{
+      setState((){form = {
+        "type": "form",
+        "title": "Untitled Form",
+        "description": "",
+        "content": [
+          {
+            "type": QuestionTypes.singleLine.value,
+            "title": "Untitled Question",
+            "options": [
+              "Option 1"
+            ],
+          }
+        ],
+      };});
     }
   }
 

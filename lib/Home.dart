@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'dart:developer' as developer;
+
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -19,7 +21,10 @@ class HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NearbyService>().removeListener(catchError);
       context.read<NearbyService>().addListener(catchError);
+
     });
+
+
   }
   
   @override
@@ -44,6 +49,7 @@ class HomeState extends State<Home> {
   
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SNDR'),
@@ -55,6 +61,8 @@ class HomeState extends State<Home> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: () {
+                  context.read<NearbyService>().isSaved=false;
+                  developer.log("${context.read<NearbyService>().isSaved}");
                   Navigator.pushNamed(context, '/createForm');
                 }, 
                 child: const Text('Form'),
