@@ -40,10 +40,13 @@ class CreateFormState extends State<CreateForm> {
       context.read<NearbyService>().removeListener(goToConnectedPage);
       context.read<NearbyService>().addListener(catchError);
       context.read<NearbyService>().addListener(goToConnectedPage);
+      
+      _readJson();
+      _checkSaved();
     });
+    // _readJson();
+    // _checkSaved();
 
-    _readJson();
-    _checkSaved();
     //
     // if(context.read<NearbyService>().isSaved==true){
     //   developer.log("TRUETRUE");
@@ -74,7 +77,9 @@ class CreateFormState extends State<CreateForm> {
         context.read<NearbyService>().form1 = jsonDecode(await readFile(context.read<NearbyService>().fileOpen)) as Map<String, dynamic>;
         developer.log("TRUE");
         developer.log(context.read<NearbyService>().form1["Untitled Form"].toString());
-        setState((form=context.read<NearbyService>().form1["Untitled Form"]));
+        setState((){
+          form=context.read<NearbyService>().form1["Untitled Form"];
+        });
 
         // form=context.read<NearbyService>().form1["Untitled Form"];
         developer.log("form1${context.read<NearbyService>().form1["Untitled Form"]}");
