@@ -52,7 +52,10 @@ class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
   factory NearbyService() => _instance;
   NearbyService._internal();
-  
+
+  bool isSaved = false;
+  String fileOpen = "";
+  Map<String,dynamic> form1 ={};
   // ExchangeType exchangeType = ExchangeType.none;
   bool isAdvertising = false, isDiscovering = false;
   final Strategy strategy = Strategy.P2P_STAR;

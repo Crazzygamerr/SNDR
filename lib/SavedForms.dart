@@ -1,12 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 import 'dart:developer' as developer;
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
-
-
-
+//
+// bool isSaved = false;
+// late File fileOpen;
 class SavedForms extends StatefulWidget {
   const SavedForms({Key? key}) : super(key: key);
 
@@ -58,33 +60,25 @@ class SavedFormsState extends State<SavedForms> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'Saved Templates',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Saved Form Templates"),
-        ),
-        body: Column(
-          children: <Widget>[
-            // your Content if there
-            Expanded(
-              child: ListView.builder(
-                itemCount: file.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(file[index].path.split('/').last.split('.').first.toString()),
-                    // subtitle: Text(key),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/createForm');
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Saved Form Templates"),
+      ),
+      body: SafeArea(
+        child: ListView.builder(
+          itemCount: file.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(file[index].path.split('/').last.split('.').first.toString()),
+              // subtitle: Text(key),
+              onTap: () {
+                context.read<NearbyService>().isSaved=true;
+                context.read<NearbyService>().fileOpen=file[index].path.toString();
+                Navigator.pushNamed(context, '/createForm');
+              },
+            );
+          },
         ),
       ),
     );

@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 import 'dart:io';
+
+import 'SavedForms.dart';
 // import 'package:intl/intl.dart';
 
 
@@ -27,6 +29,7 @@ class CreateFormState extends State<CreateForm> {
   late File _filePath;
   Map<String, dynamic> _json = {};
   late String _jsonString;
+
   // int counter=0;
 
   @override
@@ -40,6 +43,15 @@ class CreateFormState extends State<CreateForm> {
     });
 
     _readJson();
+    _checkSaved();
+    //
+    // if(context.read<NearbyService>().isSaved==true){
+    //   developer.log("TRUETRUE");
+    //
+    //
+    //
+    // }
+
   }
 
   // saveJson(source) async {
@@ -54,6 +66,32 @@ class CreateFormState extends State<CreateForm> {
   //   // });
   // }
 
+  Future<void> _checkSaved() async {
+    if(context.read<NearbyService>().isSaved==true){
+      try {
+        developer.log("TRUE");
+        developer.log(await readFile(context.read<NearbyService>().fileOpen));
+        context.read<NearbyService>().form1 = jsonDecode(await readFile(context.read<NearbyService>().fileOpen)) as Map<String, dynamic>;
+        developer.log("TRUE");
+        developer.log(context.read<NearbyService>().form1["Untitled Form"].toString());
+        setState((form=context.read<NearbyService>().form1["Untitled Form"]));
+
+        // form=context.read<NearbyService>().form1["Untitled Form"];
+        developer.log("form1${context.read<NearbyService>().form1["Untitled Form"]}");
+        // form = a as Map<String,dynamic>;
+        // const JsonDecoder.withIndent("  ").convert(form)
+      }
+      catch (e) {
+        print('Tried reading _file error: $e');
+      }
+    }
+  }
+
+
+  Future<String> readFile(String path) async {
+    return await File(path).readAsString();
+  }
+
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
@@ -61,7 +99,7 @@ class CreateFormState extends State<CreateForm> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    String txt=form["title"].toString();
+    String txt=titleController.text.toString();
     return File('$path/$txt''.json');
   }
 
@@ -75,15 +113,6 @@ class CreateFormState extends State<CreateForm> {
 
     _filePath.writeAsString(_jsonString);
   }
-  //
-  // void _writeJson(dynamic form) async {
-  //
-  //   _jsonString = jsonEncode(_json);
-  //
-  //     _filePath.writeAsString(_jsonString);
-  // }
-
-
 
   void _readJson() async {
     _filePath = await _localFile;
@@ -103,9 +132,6 @@ class CreateFormState extends State<CreateForm> {
   void catchError() {
     if(!mounted) return;
     if(context.read<NearbyService>().error != null) {
-      // if(context.read<NearbyService>().isAdvertising) {
-      //   context.read<NearbyService>().startAdvertising(form);
-      // }
       context.read<NearbyService>().error = null;
     }
   }
@@ -128,13 +154,14 @@ class CreateFormState extends State<CreateForm> {
   
   @override
   void dispose() {
-    NearbyService().stopAdvertising();
-    NearbyService().stopDiscovery();
-    NearbyService().stopAllEndpoints();
-    // context.read<NearbyService>().removeListener(catchError);
-    // context.read<NearbyService>().removeListener(goToConnectedPage);
-    // _controllerKey.dispose();
-    // _controllerValue.dispose();
+    // NearbyService().stopAdvertising();
+    // NearbyService().stopDiscovery();
+    // NearbyService().stopAllEndpoints();
+    // // context.read<NearbyService>().removeListener(catchError);
+    // // context.read<NearbyService>().removeListener(goToConnectedPage);
+    // // _controllerKey.dispose();
+    // // _controllerValue.dispose();
+    context.read<NearbyService>().isSaved=false;
     super.dispose();
   }
   
@@ -142,6 +169,7 @@ class CreateFormState extends State<CreateForm> {
     "type": "share",
     "contentType": "ack",
   };
+
   Map<String, dynamic> form = {
     "type": "form",
     "title": "Untitled Form",
@@ -156,6 +184,7 @@ class CreateFormState extends State<CreateForm> {
       }
     ],
   };
+
   
   bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
@@ -163,10 +192,9 @@ class CreateFormState extends State<CreateForm> {
   
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-
     List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
-    
+
+    // developer.log(form.toString());
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -386,7 +414,7 @@ class CreateFormState extends State<CreateForm> {
                       // //     '0. Input key: ${_controllerKey.text}; Input value: ${_controllerValue.text}\n-\n');
                       // // counter=counter+1
                       // _writeJson(form);
-                      _writeJson("${now.hour}:${now.minute}:${now.second}", form);
+                      _writeJson(titleController.text, form);
                       final file = await _localFile;
                       _fileExists = await file.exists();
 
