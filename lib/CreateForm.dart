@@ -293,23 +293,28 @@ class CreateFormState extends State<CreateForm> {
 
                                       //var length= form["content"].length-1;
                                       var l=form["content"][index]["options"].length-1;
-                                      form["content"].add(form["content"][index]);
+                                      //Map<String, Object> new_question=json.decode(json.encode(form["content"][index])) as  Map<String, Object>;
+                                      final new_question=form["content"][index];
+                                      print(new_question.runtimeType);
+                                      print(form["content"][index].runtimeType);
+                                      //form["content"].add(form["content"][index]);
 
+                                      form["content"].add(new_question);
                                       //form["content"].add(LinkedHashMap.from(form["content"][length]));
-                                      //print(form["content"]);
+
                                       optionControllers.add([
                                         TextEditingController(text:form["content"][index]["options"][0] ),
                                       ]);
                                       for (var i = 0; i <= l; i++) {
-                                        // print(form["content"][length]["options"][i]);
+                                        
                                         optionControllers[form["content"].length-1].add(
                                           TextEditingController(text:form["content"][index]["options"][i] ),
                                         );
                                       }
-                                      //form["content"].add({
-                                      //"type": form["content"][length]["type"] ,
-                                      //"title": form["content"][length]["title"] ,
-                                      //"options": form["content"][length]["options"]
+                                     // form["content"].add({
+                                     // "type": form["content"][index]["type"] ,
+                                     // "title": form["content"][index]["title"] ,
+                                      //"options": form["content"][index]["options"]
                                       //});
 
                                     }),
@@ -368,11 +373,13 @@ class CreateFormState extends State<CreateForm> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+
                       String s=Provider.of<NearbyService>(context, listen: false).userName.toString();
                       form['username']=s;
-                      print(s);
-                      print(form);
+                      NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+                      print(context.watch<NearbyService>().isAdvertising);
+                     // print(s);
+                     // print(form);
                     },
                     child: const Text('Open'),
                   ),
