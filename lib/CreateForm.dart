@@ -90,7 +90,8 @@ class CreateFormState extends State<CreateForm> {
   
   bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
-  TextEditingController titleControllerr = TextEditingController(text: "Untitled Form"), descriptionControllerr = TextEditingController();
+  TextEditingController titleControllerr = TextEditingController(text: "Untitled Form");
+  List<TextEditingController> title_Controllers = [TextEditingController(text: "Untitled Question")];
   List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
 
   @override
@@ -183,17 +184,23 @@ class CreateFormState extends State<CreateForm> {
                                 Expanded(
                                   child: TextFormField(
                                     decoration: const InputDecoration(
-                                      labelText: 'Question Title',
+                                     //labelText: 'Question Title',
                                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                       border: UnderlineInputBorder(),
                                     ),
+                                    controller:title_Controllers[index],
+                                    onChanged: (v) => setState(() => form["content"][index]["title"] = v),
+
                                   ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () => setState(() {
+                                    //print(index);
                                     form["content"].removeAt(index); 
                                     optionControllers.removeAt(index);
+                                    title_Controllers.removeAt(index);
+
                                   }),
                                 ),
                               ],
@@ -296,7 +303,7 @@ class CreateFormState extends State<CreateForm> {
                                   child: TextButton(
                                     onPressed: () => setState(() {
 
-
+                                      print(form);
                                       // List<Map<String, Object>> new_content=List.from(form["content"].toList());
                                       Map<String, Object> new_value={};
                                       List<String> options =[];
@@ -307,17 +314,18 @@ class CreateFormState extends State<CreateForm> {
                                         options.add(form["content"][index]["options"][i]);
                                       }
                                       new_value["options"]=options;
+                                      print(index);
                                       form["content"].add(new_value);
                                       //form["content"].add(new_content[index]);
-
+                                      print(index);
                                        optionControllers.add([
-                                         TextEditingController(text: form["content"][index+1]["options"][0]),]);
+                                         TextEditingController(text: form["content"][index]["options"][0]),]);
                                        for (var i = 1; i <= l; i++) {
                                          optionControllers[form["content"].length - 1].add(
                                            TextEditingController(text: form["content"][index]["options"][i]),
                                          );
                                        }
-
+                                      title_Controllers.add(TextEditingController(text:form["content"][index]["title"] ));
 
                                       }),
                                     child: const Text('Duplicate Question'),
@@ -348,6 +356,7 @@ class CreateFormState extends State<CreateForm> {
                       optionControllers.add([
                         TextEditingController(text: "Option 1"),
                       ]);
+                      title_Controllers.add(TextEditingController(text: "Untitled Question"));
                     }),
                     child: const Text('Add Question'),
                   ),
@@ -379,7 +388,7 @@ class CreateFormState extends State<CreateForm> {
                       String s=Provider.of<NearbyService>(context, listen: false).userName.toString();
                       form['username']=s;
                       NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
-                      print(form);
+
                      // print(s);
                      // print(form);
                     },
