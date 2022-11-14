@@ -92,16 +92,17 @@ class CreateFormState extends State<CreateForm> {
   TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
   TextEditingController titleControllerr = TextEditingController(text: "Untitled Form"), descriptionControllerr = TextEditingController();
   List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
-  
+
   @override
   Widget build(BuildContext context) {
      List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
-
+     //print(form);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Create Form'),
       ),
+
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(10),
@@ -205,7 +206,9 @@ class CreateFormState extends State<CreateForm> {
                                     value: e.value,
                                     child: Text(e.name),
                                   )).toList(),
-                                  onChanged: (v) => setState(() => form["content"][index]["type"] = v),
+                                  onChanged: (v) => setState(() { form["content"][index]["type"] = v;
+
+                                  }),
                                   value: form["content"][index]["type"],
                                 ),
                               ],
@@ -216,8 +219,11 @@ class CreateFormState extends State<CreateForm> {
                                 Switch(
                                   value: form["content"][index]["isRequired"] ?? false,
                                   onChanged: (v) => setState(() => form["content"][index]["isRequired"] = v),
+
                                 ),
+
                               ],
+
                             ),
 
                             if(
@@ -232,8 +238,6 @@ class CreateFormState extends State<CreateForm> {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index2) {
-                                  //print(index);
-                                  //print(index2);
 
                                   return Row(
                                     children: [
@@ -270,6 +274,7 @@ class CreateFormState extends State<CreateForm> {
                                 },
                               ),
                               const SizedBox(height: 10),
+
                               Row(
                                 children: [
                                   Expanded(
@@ -291,33 +296,30 @@ class CreateFormState extends State<CreateForm> {
                                   child: TextButton(
                                     onPressed: () => setState(() {
 
-                                      //var length= form["content"].length-1;
-                                      var l=form["content"][index]["options"].length-1;
-                                      //Map<String, Object> new_question=json.decode(json.encode(form["content"][index])) as  Map<String, Object>;
-                                      final new_question=form["content"][index];
-                                      print(new_question.runtimeType);
-                                      print(form["content"][index].runtimeType);
-                                      //form["content"].add(form["content"][index]);
 
-                                      form["content"].add(new_question);
-                                      //form["content"].add(LinkedHashMap.from(form["content"][length]));
-
-                                      optionControllers.add([
-                                        TextEditingController(text:form["content"][index]["options"][0] ),
-                                      ]);
+                                      // List<Map<String, Object>> new_content=List.from(form["content"].toList());
+                                      Map<String, Object> new_value={};
+                                      List<String> options =[];
+                                      new_value['type']=form["content"][index]["type"];
+                                      new_value["title"]= form["content"][index]["title"] ;
+                                      var l = form["content"][index]["options"].length - 1;
                                       for (var i = 0; i <= l; i++) {
-                                        
-                                        optionControllers[form["content"].length-1].add(
-                                          TextEditingController(text:form["content"][index]["options"][i] ),
-                                        );
+                                        options.add(form["content"][index]["options"][i]);
                                       }
-                                     // form["content"].add({
-                                     // "type": form["content"][index]["type"] ,
-                                     // "title": form["content"][index]["title"] ,
-                                      //"options": form["content"][index]["options"]
-                                      //});
+                                      new_value["options"]=options;
+                                      form["content"].add(new_value);
+                                      //form["content"].add(new_content[index]);
 
-                                    }),
+                                       optionControllers.add([
+                                         TextEditingController(text: form["content"][index+1]["options"][0]),]);
+                                       for (var i = 1; i <= l; i++) {
+                                         optionControllers[form["content"].length - 1].add(
+                                           TextEditingController(text: form["content"][index]["options"][i]),
+                                         );
+                                       }
+
+
+                                      }),
                                     child: const Text('Duplicate Question'),
                                   ),
                                 ),
@@ -377,7 +379,7 @@ class CreateFormState extends State<CreateForm> {
                       String s=Provider.of<NearbyService>(context, listen: false).userName.toString();
                       form['username']=s;
                       NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
-                      print(context.watch<NearbyService>().isAdvertising);
+                      print(form);
                      // print(s);
                      // print(form);
                     },
