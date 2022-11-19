@@ -18,23 +18,13 @@ final _lowColor = Colors.black38;
 final _highColor = Color.fromARGB(161, 80, 195, 201);
 
 final _lowBgColor = Colors.white;
-final _highBgColor = Color(0xFFE6E6E6);
 
 Color _fieldColor = _lowColor;
-Color _bgColor = _lowBgColor;
 
 final _lowDescColor = Colors.black38;
 final _highDescColor = Color.fromARGB(161, 80, 195, 201);
 
-final _lowBgDescColor = Colors.white;
-final _highBgDescColor = Color(0xFFE6E6E6);
-
-final _lowBgQuesColor = Colors.white;
-final _highBgQuesColor = Color(0xFFE6E6E6);
-
 Color _fieldDescColor = _lowDescColor;
-Color _bgDescColor = _lowBgDescColor;
-Color _bgQuesColor = _lowBgQuesColor;
 
 class SampleCreateState extends State<SampleCreate> {
   @override
@@ -73,7 +63,7 @@ class SampleCreateState extends State<SampleCreate> {
       Provider.of<NearbyService>(context, listen: false).payloads = [
         {"type": "share", "contentType": "ack"}
       ];
-      Navigator.of(context).pushNamed('/responsePage').then((value) {
+      Navigator.of(context).pushNamed('/sampleResponsePage').then((value) {
         context.read<NearbyService>().payloads = [{}];
         NearbyService().stopAllEndpoints();
         NearbyService().startAdvertising(shareMsg, isSharing: true);
@@ -114,30 +104,6 @@ class SampleCreateState extends State<SampleCreate> {
   List<List<TextEditingController>> optionControllers = [
     [TextEditingController(text: "Option 1")]
   ];
-
-  // void startDis() async {
-  //   await NearbyService().stopAllEndpoints();
-  //   String s = await NearbyService().startDiscovery();
-  //   if(s != 'true') {
-  //     showSnackbar(s);
-  //   }
-  // }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // context.read<NearbyService>().addListener(changeRoute);
-
-  // }
-
-  // void changeRoute() {
-  //   if(context.read<NearbyService>().payloads[0].containsKey('content')
-  //     && context.read<NearbyService>().isDiscovering
-  //     && ModalRoute.of(context)!.settings.name != '/responsePage'
-  //     ){
-  //       Navigator.pushNamed(context, '/responsePage');
-  //     }
-  // }
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
     backgroundColor: Color(0XFF50C2C9),
@@ -205,12 +171,14 @@ class SampleCreateState extends State<SampleCreate> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 children: [
-                  InputDecorator(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(75.0)),
                     ),
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    height: 55, //gives the height of the dropdown button
+                    width: MediaQuery.of(context).size.width * 0.5,
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton(
                         value: isSharing,
@@ -253,9 +221,6 @@ class SampleCreateState extends State<SampleCreate> {
                                             _fieldColor = hasFocus
                                                 ? _highColor
                                                 : _lowColor,
-                                            _bgColor = hasFocus
-                                                ? _highBgColor
-                                                : _lowBgColor
                                           });
                                     },
                                     child: TextFormField(
@@ -297,9 +262,6 @@ class SampleCreateState extends State<SampleCreate> {
                                             _fieldDescColor = hasFocus
                                                 ? _highDescColor
                                                 : _lowDescColor,
-                                            _bgDescColor = hasFocus
-                                                ? _highBgDescColor
-                                                : _lowBgDescColor
                                           });
                                     },
                                     child: TextFormField(
@@ -312,7 +274,7 @@ class SampleCreateState extends State<SampleCreate> {
                                         labelText: 'Form Description',
                                         labelStyle: TextStyle(
                                             color: _fieldDescColor,
-                                            backgroundColor: _bgDescColor,
+                                            backgroundColor: Colors.white,
                                             fontFamily: 'Poppins'),
                                         contentPadding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 5),
@@ -345,7 +307,7 @@ class SampleCreateState extends State<SampleCreate> {
                             child: Container(
                           decoration: BoxDecoration(
                             color: Color.fromARGB(255, 248, 246, 246),
-                            borderRadius: BorderRadius.all(Radius.circular(9)),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
                             boxShadow: [
                               BoxShadow(
                                 offset: Offset(0, 1),
@@ -360,14 +322,6 @@ class SampleCreateState extends State<SampleCreate> {
                               Row(
                                 children: [
                                   Expanded(
-                                      child: Focus(
-                                    onFocusChange: (hasFocus) {
-                                      setState(() => {
-                                            _bgQuesColor = hasFocus
-                                                ? _highBgQuesColor
-                                                : _lowBgQuesColor
-                                          });
-                                    },
                                     child: TextFormField(
                                       decoration: InputDecoration(
                                           labelText: 'Question Title',
@@ -394,7 +348,7 @@ class SampleCreateState extends State<SampleCreate> {
                                             borderSide: BorderSide.none,
                                           )),
                                     ),
-                                  )),
+                                  ),
                                   IconButton(
                                     icon: const Icon(Icons.delete),
                                     onPressed: () => setState(() {
@@ -436,11 +390,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                 'Poppins',
                                                             fontSize: 15,
                                                             color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    80,
-                                                                    185,
-                                                                    201)),
+                                                                Colors.black54),
                                                       ),
                                                     ))
                                                 .toList(),
@@ -514,7 +464,7 @@ class SampleCreateState extends State<SampleCreate> {
                                             fillColor:
                                                 MaterialStateColor.resolveWith(
                                                     (states) => Color.fromARGB(
-                                                        212, 80, 195, 201)),
+                                                        150, 80, 195, 201)),
                                             focusColor:
                                                 MaterialStateColor.resolveWith(
                                                     (states) => Color.fromARGB(
@@ -522,10 +472,16 @@ class SampleCreateState extends State<SampleCreate> {
                                           ),
                                         if (form["content"][index]["type"] ==
                                             QuestionTypes.checkbox.value)
-                                          const Checkbox(
-                                            value: false,
-                                            onChanged: null,
-                                          ),
+                                          Theme(
+                                              data: Theme.of(context).copyWith(
+                                                unselectedWidgetColor:
+                                                    Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                              ),
+                                              child: const Checkbox(
+                                                value: false,
+                                                onChanged: null,
+                                              )),
                                         Expanded(
                                           child: TextFormField(
                                             decoration: const InputDecoration(
@@ -560,6 +516,7 @@ class SampleCreateState extends State<SampleCreate> {
                                   children: [
                                     Expanded(
                                       child: ElevatedButton(
+                                        style: flatButtonStyle,
                                         onPressed: () {
                                           setState(() => form["content"][index]
                                                   ["options"]
@@ -567,7 +524,12 @@ class SampleCreateState extends State<SampleCreate> {
                                           optionControllers[index]
                                               .add(TextEditingController());
                                         },
-                                        child: const Text("Add Option"),
+                                        child: const Text("Add Option",
+                                            style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 13.0,
+                                                fontWeight: FontWeight.w100,
+                                                letterSpacing: 1.2)),
                                       ),
                                     ),
                                   ],
@@ -579,21 +541,27 @@ class SampleCreateState extends State<SampleCreate> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    Card(
-                      child: TextButton(
-                        onPressed: () => setState(() {
-                          form["content"].add({
-                            "type": QuestionTypes.singleLine.value,
-                            "title": "Untitled Question",
-                            "options": [
-                              "Option 1",
-                            ],
-                          });
-                          optionControllers.add([
-                            TextEditingController(text: "Option 1"),
-                          ]);
-                        }),
-                        child: const Text('Add Question'),
+                    ElevatedButton(
+                      style: flatButtonStyle,
+                      onPressed: () => setState(() {
+                        form["content"].add({
+                          "type": QuestionTypes.singleLine.value,
+                          "title": "Untitled Question",
+                          "options": [
+                            "Option 1",
+                          ],
+                        });
+                        optionControllers.add([
+                          TextEditingController(text: "Option 1"),
+                        ]);
+                      }),
+                      child: const Text(
+                        'Add Question',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w200,
+                            letterSpacing: 1.2),
                       ),
                     ),
                   ],
@@ -606,6 +574,7 @@ class SampleCreateState extends State<SampleCreate> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
+                        style: flatButtonStyle,
                         onPressed: () {
                           NearbyService().stopAdvertising();
                           // developer.log(QuestionTypes.dropdown.value);
@@ -614,6 +583,7 @@ class SampleCreateState extends State<SampleCreate> {
                         child: const Text('Close'),
                       ),
                       ElevatedButton(
+                        style: flatButtonStyle,
                         onPressed: () {
                           NearbyService().startAdvertising(
                               isSharing ? shareMsg : form,

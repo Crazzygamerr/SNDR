@@ -75,85 +75,6 @@ class SampleFrontendState extends State<SampleFrontend> {
           Container(
               height: MediaQuery.of(context).size.height * 0.30,
               child: Stack(children: [
-                // Positioned(
-                //   top: 640,
-                //   child: Container(
-                //       margin: EdgeInsets.all(25),
-                //       child: SizedBox(
-                //         width: MediaQuery.of(context).size.width * 0.88,
-                //         height: 60.0,
-                //         child: ElevatedButton(
-                //           style: flatButtonStyle,
-                //           onPressed: () {
-                //             Navigator.pushNamed(context, '/createForm');
-                //           },
-                //           child: Text(
-                //             "CREATE ROOM",
-                //             style: TextStyle(
-                //               fontFamily: 'Poppins',
-                //               fontSize: 15.0,
-                //               fontWeight: FontWeight.w600,
-                //             ),
-                //           ),
-                //         ),
-                //       )),
-                // ),
-                // Positioned(
-                //   top: 560,
-                //   child: Container(
-                //       margin: EdgeInsets.all(25),
-                //       child: SizedBox(
-                //         width: MediaQuery.of(context).size.width * 0.88,
-                //         height: 60.0,
-                //         child: ElevatedButton(
-                //           style: flatButtonStyle,
-                //           onPressed: () {
-                //             Navigator.pushNamed(context, '/rooms');
-                //           },
-                //           child: Text(
-                //             "JOIN ROOM",
-                //             style: TextStyle(
-                //               fontFamily: 'Poppins',
-                //               fontSize: 15.0,
-                //               fontWeight: FontWeight.w600,
-                //             ),
-                //           ),
-                //         ),
-                //       )),
-                // ),
-                // Positioned(
-                //     top: 510,
-                //     left: 145,
-                //     child: Container(
-                //       child: Text(
-                //         'Go Ahead',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins',
-                //           fontSize: 17.0,
-                //           color: Colors.black,
-                //           fontWeight: FontWeight.normal,
-                //         ),
-                //       ),
-                //     )),
-                // Positioned(
-                //     top: 350,
-                //     left: 124,
-                //     child: Image(image: AssetImage('assets/welcomeScreenImg.png'))),
-                // Positioned(
-                //     top: 250,
-                //     left: 117,
-                //     child: Container(
-                //       child: Text(
-                //         'Welcome',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins',
-                //           fontSize: 28.0,
-                //           color: Colors.black,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //     )),
-
                 Positioned(
                     top: -10,
                     left: -110,
@@ -203,7 +124,7 @@ class SampleFrontendState extends State<SampleFrontend> {
                 child: ElevatedButton(
                   style: flatButtonStyle,
                   onPressed: () {
-                    Navigator.pushNamed(context, '/rooms');
+                    Navigator.pushNamed(context, '/sampleRooms');
                   },
                   child: Text(
                     "JOIN ROOM",

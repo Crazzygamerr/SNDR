@@ -8,6 +8,8 @@ import 'package:sdl/Rooms.dart';
 import 'package:sdl/SampleFrontend.dart';
 import 'package:sdl/SampleCreateForm.dart';
 import 'package:sdl/SampleCreate.dart';
+import 'package:sdl/SampleRooms.dart';
+import 'package:sdl/SampleResponsePage.dart';
 
 // TODO: Mark attendance & UUID
 // Rate limiting
@@ -57,7 +59,22 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => NearbyService(),
-      child: const MaterialApp(
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch()
+              .copyWith(secondary: Color.fromARGB(183, 206, 230, 241)),
+          inputDecorationTheme: InputDecorationTheme(
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0XFF50C2C9)))),
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.brown,
+            selectionColor: Colors.black,
+            selectionHandleColor: Colors.brown,
+          ),
+          textTheme: TextTheme(
+              subtitle1: TextStyle(
+                  color: Color.fromARGB(151, 0, 0, 0), fontFamily: 'Poppins')),
+        ),
         debugShowCheckedModeBanner: false,
         onGenerateRoute: generateRoute,
         initialRoute: '/',
@@ -93,6 +110,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case '/sampleCreate':
       return MaterialPageRoute(
           settings: settings, builder: (_) => const SampleCreate());
+
+    case '/sampleRooms':
+      return MaterialPageRoute(
+          settings: settings, builder: (_) => const SampleRooms());
+
+    case '/sampleResponsePage':
+      return MaterialPageRoute(
+          settings: settings, builder: (_) => const SampleResponsePage());
 
     default:
       return MaterialPageRoute(
