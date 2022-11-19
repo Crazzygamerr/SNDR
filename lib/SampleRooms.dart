@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 import 'dart:developer' as developer;
+import 'package:sdl/main.dart';
 
 class SampleRooms extends StatefulWidget {
   const SampleRooms({Key? key}) : super(key: key);
@@ -57,13 +58,10 @@ class SampleRoomsState extends State<SampleRooms> {
 
   @override
   void dispose() {
-    // void deactivate() {
     NearbyService().stopDiscovery();
     NearbyService().stopAllEndpoints();
-    // developer.log("dispose");
-    // context.read<NearbyService>().removeListener(changeRoute);
+
     super.dispose();
-    // super.deactivate();
   }
 
   @override
@@ -76,85 +74,6 @@ class SampleRoomsState extends State<SampleRooms> {
       Container(
           height: MediaQuery.of(context).size.height * 0.28,
           child: Stack(children: [
-            // Positioned(
-            //   top: 640,
-            //   child: Container(
-            //       margin: EdgeInsets.all(25),
-            //       child: SizedBox(
-            //         width: MediaQuery.of(context).size.width * 0.88,
-            //         height: 60.0,
-            //         child: ElevatedButton(
-            //           style: flatButtonStyle,
-            //           onPressed: () {
-            //             Navigator.pushNamed(context, '/createForm');
-            //           },
-            //           child: Text(
-            //             "CREATE ROOM",
-            //             style: TextStyle(
-            //               fontFamily: 'Poppins',
-            //               fontSize: 15.0,
-            //               fontWeight: FontWeight.w600,
-            //             ),
-            //           ),
-            //         ),
-            //       )),
-            // ),
-            // Positioned(
-            //   top: 560,
-            //   child: Container(
-            //       margin: EdgeInsets.all(25),
-            //       child: SizedBox(
-            //         width: MediaQuery.of(context).size.width * 0.88,
-            //         height: 60.0,
-            //         child: ElevatedButton(
-            //           style: flatButtonStyle,
-            //           onPressed: () {
-            //             Navigator.pushNamed(context, '/rooms');
-            //           },
-            //           child: Text(
-            //             "JOIN ROOM",
-            //             style: TextStyle(
-            //               fontFamily: 'Poppins',
-            //               fontSize: 15.0,
-            //               fontWeight: FontWeight.w600,
-            //             ),
-            //           ),
-            //         ),
-            //       )),
-            // ),
-            // Positioned(
-            //     top: 510,
-            //     left: 145,
-            //     child: Container(
-            //       child: Text(
-            //         'Go Ahead',
-            //         style: TextStyle(
-            //           fontFamily: 'Poppins',
-            //           fontSize: 17.0,
-            //           color: Colors.black,
-            //           fontWeight: FontWeight.normal,
-            //         ),
-            //       ),
-            //     )),
-            // Positioned(
-            //     top: 350,
-            //     left: 124,
-            //     child: Image(image: AssetImage('assets/welcomeScreenImg.png'))),
-            // Positioned(
-            //     top: 250,
-            //     left: 117,
-            //     child: Container(
-            //       child: Text(
-            //         'Welcome',
-            //         style: TextStyle(
-            //           fontFamily: 'Poppins',
-            //           fontSize: 28.0,
-            //           color: Colors.black,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //     )),
-
             Positioned(
                 top: -10,
                 left: -110,
@@ -240,129 +159,14 @@ class SampleRoomsState extends State<SampleRooms> {
                                       //   "device_id": context.read<NearbyService>().userName,
                                       // })
                                       );
-                                  Navigator.pushNamed(context, '/responsePage')
-                                      .then((value) => startDis());
+                                  Provider.of<PageController>(context,
+                                          listen: false)
+                                      .jumpToPage(Pages.responsePage.index);
                                 },
                               )))));
                 },
-              )))
-
-      // child: DropdownButtonHideUnderline(
-      //   child: DropdownButton(
-      //     value: formType,
-      //     onChanged: (v) {
-      //       setState(() {
-      //         formType = v as bool;
-      //       });
-      //     },
-      //     items: [
-      //       DropdownMenuItem(
-      //         value: true,
-      //         child: Text(
-      //           "Attendance",
-      //           style: TextStyle(
-      //             fontFamily: 'Poppins',
-      //             fontSize: 12.0,
-      //             color: Colors.black,
-      //             fontWeight: FontWeight.normal,
-      //           ),
-      //         ),
-      //       ),
-      //       DropdownMenuItem(
-      //         value: false,
-      //         child: Text(
-      //           "Quiz",
-      //           style: TextStyle(
-      //             fontFamily: 'Poppins',
-      //             fontSize: 12.0,
-      //             color: Colors.black,
-      //             fontWeight: FontWeight.normal,
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
-
-      ,
-      // Container(
-      //     margin: EdgeInsets.all(25),
-      //     padding: EdgeInsets.only(top: 28),
-      //     child: SizedBox(
-      //       width: MediaQuery.of(context).size.width * 0.88,
-      //       height: 60.0,
-      //       child: ElevatedButton(
-      //         style: flatButtonStyle,
-      //         onPressed: () {
-      //           Navigator.pushNamed(context, '/sampleCreate');
-      //         },
-      //         child: Text(
-      //           "Create Room",
-      //           style: TextStyle(
-      //               fontFamily: 'Poppins',
-      //               fontSize: 15.0,
-      //               fontWeight: FontWeight.w600,
-      //               letterSpacing: 1.2),
-      //         ),
-      //       ),
-      //     )),
-    ])
-                // appBar: AppBar(
-                //   title: const Text('Sample'),
-                // ),
-
-                // body: SafeArea(
-                //   child: Center(
-                //     child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                //       Align(
-                //         widthFactor: 0.3,
-                //         child: CircleAvatar(
-                //           backgroundColor: Colors.blueAccent,
-                //           radius: 70.0,
-                //         ),
-                //       ),
-                //       Text(
-                //         'Welcome',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins.SemiBold',
-                //           fontSize: 30.0,
-                //           color: Colors.teal,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //     ]),
-                //   ),
-                // ),
-                ))
-        // body: SafeArea(
-        //   child: ListView.builder(
-        //     itemCount: context.watch<NearbyService>().foundDevices.length,
-        //     itemBuilder: (context, index) {
-        //       String key = context
-        //           .watch<NearbyService>()
-        //           .foundDevices
-        //           .keys
-        //           .elementAt(index);
-
-        //       return ListTile(
-        //         title: Text(context.watch<NearbyService>().foundDevices[key]!),
-        //         subtitle: Text(key),
-        //         onTap: () {
-        //           // connect to device
-        //           NearbyService().requestConnection(key, '{"type": "request"}'
-        //               // jsonEncode({
-        //               //   "type": "request",
-        //               //   "device_id": context.read<NearbyService>().userName,
-        //               // })
-        //               );
-        //           Navigator.pushNamed(context, '/responsePage')
-        //               .then((value) => startDis());
-        //         },
-        //       );
-        //     },
-        //   ),
-        // ),
-        );
+              ))),
+    ]))));
   }
 
   void showSnackbar(dynamic a) {

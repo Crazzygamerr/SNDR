@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as developer;
+import 'package:sdl/main.dart';
 
 class SampleFrontend extends StatefulWidget {
   const SampleFrontend({Key? key}) : super(key: key);
@@ -15,46 +16,11 @@ class SampleFrontendState extends State<SampleFrontend> {
     // void activate() {
     super.initState();
     super.activate();
-    // developer.log("init");
-    // startDis();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<NearbyService>().payloads = [{}];
-    // });
   }
-
-  // void startDis() async {
-  //   await NearbyService().stopAllEndpoints();
-  //   String s = await NearbyService().startDiscovery();
-  //   if(s != 'true') {
-  //     showSnackbar(s);
-  //   }
-  // }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // context.read<NearbyService>().addListener(changeRoute);
-
-  // }
-
-  // void changeRoute() {
-  //   if(context.read<NearbyService>().payloads[0].containsKey('content')
-  //     && context.read<NearbyService>().isDiscovering
-  //     && ModalRoute.of(context)!.settings.name != '/responsePage'
-  //     ){
-  //       Navigator.pushNamed(context, '/responsePage');
-  //     }
-  // }
 
   @override
   void dispose() {
-    // // void deactivate() {
-    //   NearbyService().stopDiscovery();
-    //   NearbyService().stopAllEndpoints();
-    // developer.log("dispose");
-    // context.read<NearbyService>().removeListener(changeRoute);
     super.dispose();
-    // super.deactivate();
   }
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
@@ -124,7 +90,8 @@ class SampleFrontendState extends State<SampleFrontend> {
                 child: ElevatedButton(
                   style: flatButtonStyle,
                   onPressed: () {
-                    Navigator.pushNamed(context, '/sampleRooms');
+                    Provider.of<PageController>(context, listen: false)
+                        .jumpToPage(Pages.sampleRooms.index);
                   },
                   child: Text(
                     "JOIN ROOM",
@@ -144,7 +111,8 @@ class SampleFrontendState extends State<SampleFrontend> {
                 child: ElevatedButton(
                   style: flatButtonStyle,
                   onPressed: () {
-                    Navigator.pushNamed(context, '/cpSampleFormTypes');
+                    Provider.of<PageController>(context, listen: false)
+                        .jumpToPage(Pages.cpSampleFormTypes.index);
                   },
                   child: Text(
                     "CREATE ROOM",
@@ -156,33 +124,6 @@ class SampleFrontendState extends State<SampleFrontend> {
                   ),
                 ),
               )),
-        ])
-            // appBar: AppBar(
-            //   title: const Text('Sample'),
-            // ),
-
-            // body: SafeArea(
-            //   child: Center(
-            //     child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            //       Align(
-            //         widthFactor: 0.3,
-            //         child: CircleAvatar(
-            //           backgroundColor: Colors.blueAccent,
-            //           radius: 70.0,
-            //         ),
-            //       ),
-            //       Text(
-            //         'Welcome',
-            //         style: TextStyle(
-            //           fontFamily: 'Poppins.SemiBold',
-            //           fontSize: 30.0,
-            //           color: Colors.teal,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //     ]),
-            //   ),
-            // ),
-            ));
+        ])));
   }
 }

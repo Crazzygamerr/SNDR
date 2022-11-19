@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as developer;
+import 'package:sdl/main.dart';
 
 class SampleCreateForm extends StatefulWidget {
   const SampleCreateForm({Key? key}) : super(key: key);
@@ -17,49 +18,13 @@ String? _formTypeSelected;
 class SampleCreateFormState extends State<SampleCreateForm> {
   @override
   void initState() {
-    // void activate() {
     super.initState();
     super.activate();
-    // developer.log("init");
-    // startDis();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<NearbyService>().payloads = [{}];
-    // });
   }
-
-  // void startDis() async {
-  //   await NearbyService().stopAllEndpoints();
-  //   String s = await NearbyService().startDiscovery();
-  //   if(s != 'true') {
-  //     showSnackbar(s);
-  //   }
-  // }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // context.read<NearbyService>().addListener(changeRoute);
-
-  // }
-
-  // void changeRoute() {
-  //   if(context.read<NearbyService>().payloads[0].containsKey('content')
-  //     && context.read<NearbyService>().isDiscovering
-  //     && ModalRoute.of(context)!.settings.name != '/responsePage'
-  //     ){
-  //       Navigator.pushNamed(context, '/responsePage');
-  //     }
-  // }
 
   @override
   void dispose() {
-    // // void deactivate() {
-    //   NearbyService().stopDiscovery();
-    //   NearbyService().stopAllEndpoints();
-    // developer.log("dispose");
-    // context.read<NearbyService>().removeListener(changeRoute);
     super.dispose();
-    // super.deactivate();
   }
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
@@ -81,85 +46,6 @@ class SampleCreateFormState extends State<SampleCreateForm> {
           Container(
               height: MediaQuery.of(context).size.height * 0.28,
               child: Stack(children: [
-                // Positioned(
-                //   top: 640,
-                //   child: Container(
-                //       margin: EdgeInsets.all(25),
-                //       child: SizedBox(
-                //         width: MediaQuery.of(context).size.width * 0.88,
-                //         height: 60.0,
-                //         child: ElevatedButton(
-                //           style: flatButtonStyle,
-                //           onPressed: () {
-                //             Navigator.pushNamed(context, '/createForm');
-                //           },
-                //           child: Text(
-                //             "CREATE ROOM",
-                //             style: TextStyle(
-                //               fontFamily: 'Poppins',
-                //               fontSize: 15.0,
-                //               fontWeight: FontWeight.w600,
-                //             ),
-                //           ),
-                //         ),
-                //       )),
-                // ),
-                // Positioned(
-                //   top: 560,
-                //   child: Container(
-                //       margin: EdgeInsets.all(25),
-                //       child: SizedBox(
-                //         width: MediaQuery.of(context).size.width * 0.88,
-                //         height: 60.0,
-                //         child: ElevatedButton(
-                //           style: flatButtonStyle,
-                //           onPressed: () {
-                //             Navigator.pushNamed(context, '/rooms');
-                //           },
-                //           child: Text(
-                //             "JOIN ROOM",
-                //             style: TextStyle(
-                //               fontFamily: 'Poppins',
-                //               fontSize: 15.0,
-                //               fontWeight: FontWeight.w600,
-                //             ),
-                //           ),
-                //         ),
-                //       )),
-                // ),
-                // Positioned(
-                //     top: 510,
-                //     left: 145,
-                //     child: Container(
-                //       child: Text(
-                //         'Go Ahead',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins',
-                //           fontSize: 17.0,
-                //           color: Colors.black,
-                //           fontWeight: FontWeight.normal,
-                //         ),
-                //       ),
-                //     )),
-                // Positioned(
-                //     top: 350,
-                //     left: 124,
-                //     child: Image(image: AssetImage('assets/welcomeScreenImg.png'))),
-                // Positioned(
-                //     top: 250,
-                //     left: 117,
-                //     child: Container(
-                //       child: Text(
-                //         'Welcome',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins',
-                //           fontSize: 28.0,
-                //           color: Colors.black,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //     )),
-
                 Positioned(
                     top: -10,
                     left: -110,
@@ -269,44 +155,7 @@ class SampleCreateFormState extends State<SampleCreateForm> {
                             setState(() => _formTypeSelected = v ?? ""),
                       ),
                     ),
-                  )
-                  // child: DropdownButtonHideUnderline(
-                  //   child: DropdownButton(
-                  //     value: formType,
-                  //     onChanged: (v) {
-                  //       setState(() {
-                  //         formType = v as bool;
-                  //       });
-                  //     },
-                  //     items: [
-                  //       DropdownMenuItem(
-                  //         value: true,
-                  //         child: Text(
-                  //           "Attendance",
-                  //           style: TextStyle(
-                  //             fontFamily: 'Poppins',
-                  //             fontSize: 12.0,
-                  //             color: Colors.black,
-                  //             fontWeight: FontWeight.normal,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       DropdownMenuItem(
-                  //         value: false,
-                  //         child: Text(
-                  //           "Quiz",
-                  //           style: TextStyle(
-                  //             fontFamily: 'Poppins',
-                  //             fontSize: 12.0,
-                  //             color: Colors.black,
-                  //             fontWeight: FontWeight.normal,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  )),
+                  ))),
           Container(
               margin: EdgeInsets.all(25),
               padding: EdgeInsets.only(top: 28),
@@ -316,7 +165,8 @@ class SampleCreateFormState extends State<SampleCreateForm> {
                 child: ElevatedButton(
                   style: flatButtonStyle,
                   onPressed: () {
-                    Navigator.pushNamed(context, '/sampleCreate');
+                    Provider.of<PageController>(context, listen: false)
+                        .jumpToPage(Pages.sampleCreate.index);
                   },
                   child: Text(
                     "Create Room",
@@ -328,33 +178,6 @@ class SampleCreateFormState extends State<SampleCreateForm> {
                   ),
                 ),
               )),
-        ])
-                // appBar: AppBar(
-                //   title: const Text('Sample'),
-                // ),
-
-                // body: SafeArea(
-                //   child: Center(
-                //     child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                //       Align(
-                //         widthFactor: 0.3,
-                //         child: CircleAvatar(
-                //           backgroundColor: Colors.blueAccent,
-                //           radius: 70.0,
-                //         ),
-                //       ),
-                //       Text(
-                //         'Welcome',
-                //         style: TextStyle(
-                //           fontFamily: 'Poppins.SemiBold',
-                //           fontSize: 30.0,
-                //           color: Colors.teal,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //     ]),
-                //   ),
-                // ),
-                )));
+        ]))));
   }
 }

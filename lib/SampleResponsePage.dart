@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'package:sdl/main.dart';
 
 class SampleResponsePage extends StatefulWidget {
   const SampleResponsePage({Key? key}) : super(key: key);
