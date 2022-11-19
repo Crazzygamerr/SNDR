@@ -144,7 +144,7 @@ class SampleFrontendState extends State<SampleFrontend> {
                 child: ElevatedButton(
                   style: flatButtonStyle,
                   onPressed: () {
-                    Navigator.pushNamed(context, '/sampleCreateForm');
+                    Navigator.pushNamed(context, '/cpSampleFormTypes');
                   },
                   child: Text(
                     "CREATE ROOM",

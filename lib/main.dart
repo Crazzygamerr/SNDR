@@ -10,6 +10,7 @@ import 'package:sdl/SampleCreateForm.dart';
 import 'package:sdl/SampleCreate.dart';
 import 'package:sdl/SampleRooms.dart';
 import 'package:sdl/SampleResponsePage.dart';
+import 'package:sdl/CPSampleFormTypes.dart';
 
 // TODO: Mark attendance & UUID
 // Rate limiting
@@ -110,6 +111,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case '/sampleCreate':
       return MaterialPageRoute(
           settings: settings, builder: (_) => const SampleCreate());
+    case '/cpSampleFormTypes':
+      return MaterialPageRoute(
+          settings: settings, builder: (_) => const CPSampleFormTypes());
 
     case '/sampleRooms':
       return MaterialPageRoute(
