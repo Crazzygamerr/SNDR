@@ -98,7 +98,7 @@ class SampleCreateState extends State<SampleCreate> {
     ],
   };
 
-  bool isSharing = false;
+  // bool isSharing = false;
   TextEditingController titleController = TextEditingController(text: ""),
       descriptionController = TextEditingController();
   List<List<TextEditingController>> optionControllers = [
@@ -121,7 +121,9 @@ class SampleCreateState extends State<SampleCreate> {
 
     return WillPopScope(
         onWillPop: () {
-          context.read<PageController>().jumpToPage(Pages.home.index);
+          context
+              .read<PageController>()
+              .jumpToPage(Pages.sampleCreateForm.index);
           return Future.value(false);
         },
         child: Scaffold(
@@ -137,7 +139,7 @@ class SampleCreateState extends State<SampleCreate> {
                         top: -10,
                         left: -110,
                         child: Container(
-                          height: 230,
+                          height: MediaQuery.of(context).size.height * 0.28,
                           width: 230,
                           decoration: BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
@@ -146,7 +148,7 @@ class SampleCreateState extends State<SampleCreate> {
                         top: -110,
                         left: 0,
                         child: Container(
-                          height: 230,
+                          height: MediaQuery.of(context).size.height * 0.28,
                           width: 230,
                           decoration: BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
@@ -190,9 +192,11 @@ class SampleCreateState extends State<SampleCreate> {
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton(
-                            value: isSharing,
-                            onChanged: (v) =>
-                                setState(() => isSharing = v as bool),
+                            value: context.watch<NearbyService>().isSharing,
+                            onChanged: (v) => setState(() {
+                              context.read<NearbyService>().isSharing =
+                                  v as bool;
+                            }),
                             items: const [
                               DropdownMenuItem(
                                 value: true,
@@ -207,7 +211,7 @@ class SampleCreateState extends State<SampleCreate> {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      if (!isSharing) ...[
+                      if (!context.watch<NearbyService>().isSharing) ...[
                         Container(
                             decoration: BoxDecoration(
                               color: Color.fromARGB(255, 248, 246, 246),
@@ -602,7 +606,11 @@ class SampleCreateState extends State<SampleCreate> {
                       ],
 
                       Text(
-                          "Is open: ${context.watch<NearbyService>().isAdvertising}"),
+                          "Is open: ${context.watch<NearbyService>().isAdvertising}",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12.0,
+                              letterSpacing: 1.2)),
                       // Text(const JsonEncoder.withIndent("  ").convert(form)),
 
                       Row(
@@ -615,16 +623,27 @@ class SampleCreateState extends State<SampleCreate> {
                               // developer.log(QuestionTypes.dropdown.value);
                               // developer.log(const JsonEncoder.withIndent("  ").convert(form));
                             },
-                            child: const Text('Close'),
+                            child: const Text('Close',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2)),
                           ),
                           ElevatedButton(
                             style: flatButtonStyle,
                             onPressed: () {
                               NearbyService().startAdvertising(
-                                  isSharing ? shareMsg : form,
-                                  isSharing: isSharing);
+                                  context.read<NearbyService>().isSharing
+                                      ? shareMsg
+                                      : form);
                             },
-                            child: const Text('Open'),
+                            child: const Text('Open',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2)),
                           ),
                         ],
                       ),
@@ -641,14 +660,15 @@ class SampleCreateState extends State<SampleCreate> {
                   )),
               Container(
                   margin: EdgeInsets.all(25),
-                  padding: EdgeInsets.only(top: 28),
+                  padding: EdgeInsets.only(top: 28, bottom: 28),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.88,
                     height: 60.0,
                     child: ElevatedButton(
                       style: flatButtonStyle,
                       onPressed: () {
-                        Navigator.pushNamed(context, '/createForm');
+                        Provider.of<PageController>(context, listen: false)
+                            .jumpToPage(Pages.createForm.index);
                       },
                       child: Text(
                         "Create Form",

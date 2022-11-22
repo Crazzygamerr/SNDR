@@ -50,7 +50,9 @@ class CreateFormState extends State<CreateForm> {
       Navigator.of(context).pushNamed('/responsePage').then((value) {
         context.read<NearbyService>().payloads = [{}];
         NearbyService().stopAllEndpoints();
-        NearbyService().startAdvertising(shareMsg, isSharing: true);
+        NearbyService().startAdvertising(
+          shareMsg,
+        );
       });
     }
   }
@@ -129,7 +131,7 @@ class CreateFormState extends State<CreateForm> {
                 ),
               ),
               const SizedBox(height: 15),
-              if (!isSharing) ...[
+              if (isSharing) ...[
                 TextFormField(
                   decoration: const InputDecoration(
                     labelText: 'Form Title',
@@ -327,8 +329,8 @@ class CreateFormState extends State<CreateForm> {
                   ElevatedButton(
                     onPressed: () {
                       NearbyService().startAdvertising(
-                          isSharing ? shareMsg : form,
-                          isSharing: isSharing);
+                        isSharing ? shareMsg : form,
+                      );
                     },
                     child: const Text('Open'),
                   ),

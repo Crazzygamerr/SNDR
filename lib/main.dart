@@ -87,7 +87,7 @@ class PageViewWidgetState extends State<PageViewWidget> {
         if (pageController.page == Pages.home.index ||
             pageController.page == Pages.createForm.index ||
             pageController.page == Pages.sampleFrontend.index ||
-            pageController.page == Pages.sampleCreateForm.index) {
+            pageController.page == Pages.sampleCreate.index) {
           NearbyService().stopAdvertising();
           NearbyService().stopDiscovery();
           NearbyService().stopAllEndpoints();

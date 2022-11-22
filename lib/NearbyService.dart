@@ -59,15 +59,6 @@ class NearbyService with ChangeNotifier {
   List<Map<String, dynamic>> payloads = [{}];
 
   Exception? error;
-  bool errorHandledByHome = false;
-
-  // NearbyService.page(PageController pageController) {
-  //   addListener(() {
-  //     if(payload.containsKey('type')) {
-  //       // pageController.jumpToPage();
-  //     }
-  //   });
-  // }
   CameraController? cameraController;
 
   Future<bool> requestPermissions() async {
@@ -166,15 +157,13 @@ class NearbyService with ChangeNotifier {
       connectedDevices.remove(key);
       // connectedDevice = null;
       error = e;
-      errorHandledByHome = false;
       notifyListeners();
       return false;
     });
     return true;
   }
 
-  Future<bool> startAdvertising(Map<String, dynamic> form,
-      {required bool isSharing}) async {
+  Future<bool> startAdvertising(Map<String, dynamic> form) async {
     await Nearby().stopAdvertising();
     Future.delayed(const Duration(seconds: 1));
     try {
@@ -304,7 +293,6 @@ class NearbyService with ChangeNotifier {
     ).catchError((e) {
       connectedDevices.remove(id);
       error = e;
-      errorHandledByHome = false;
       notifyListeners();
       return false;
     });

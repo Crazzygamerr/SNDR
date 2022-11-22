@@ -16,12 +16,11 @@ class SampleRoomsState extends State<SampleRooms> {
   void initState() {
     // void activate() {
     super.initState();
-    super.activate();
-    // developer.log("init");
+
     startDis();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NearbyService>().payloads = [{}];
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   context.read<NearbyService>().payloads = [{}];
+    // });
   }
 
   void startDis() async {
@@ -56,117 +55,125 @@ class SampleRoomsState extends State<SampleRooms> {
     ),
   );
 
-  @override
-  void dispose() {
-    NearbyService().stopDiscovery();
-    NearbyService().stopAllEndpoints();
+  // @override
+  // void dispose() {
+  //   NearbyService().stopDiscovery();
+  //   NearbyService().stopAllEndpoints();
 
-    super.dispose();
-  }
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     int numberOfRooms = context.watch<NearbyService>().foundDevices.length;
-    return Scaffold(
-        body: SafeArea(
-            child: SingleChildScrollView(
-                child: Column(children: [
-      Container(
-          height: MediaQuery.of(context).size.height * 0.28,
-          child: Stack(children: [
-            Positioned(
-                top: -10,
-                left: -110,
-                child: Container(
-                  height: 230,
-                  width: 230,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0x738FE1D7)),
-                )),
-            Positioned(
-                top: -110,
-                left: 0,
-                child: Container(
-                  height: 230,
-                  width: 230,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0x738FE1D7)),
-                )),
-          ])),
-      Padding(
-          padding: EdgeInsets.only(bottom: 10),
-          child: Text('My Rooms',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 21.0,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ))),
-      Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: Text(
-            "Number of Rooms ~ ${numberOfRooms}",
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 17.0,
-              color: Colors.black,
-              fontWeight: FontWeight.normal,
-            ),
-          )),
-      Padding(
-          padding: EdgeInsets.only(top: 25),
-          child: Container(
-              padding: EdgeInsets.all(4),
-              height: numberOfRooms * 83,
-              constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.4),
-              width: MediaQuery.of(context).size.width * 0.88,
-              decoration: BoxDecoration(
-                  color: Color.fromARGB(116, 80, 195, 201),
-                  borderRadius: BorderRadius.circular(10)),
-              //height: MediaQuery.of(context).size.height * 0.88,
-              // width: MediaQuery.of(context).size.width * 0.88,
-              child: ListView.builder(
-                itemCount: context.watch<NearbyService>().foundDevices.length,
-                itemBuilder: (context, index) {
-                  String key = context
-                      .watch<NearbyService>()
-                      .foundDevices
-                      .keys
-                      .elementAt(index);
 
-                  return Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Container(
-                          decoration: BoxDecoration(
-                              color: Color.fromARGB(208, 255, 255, 255),
-                              borderRadius: BorderRadius.circular(12)),
-                          child: SizedBox(
-                              height: 69,
-                              child: Center(
-                                  child: ListTile(
-                                visualDensity: VisualDensity(vertical: 0),
-                                title: Text(context
-                                    .watch<NearbyService>()
-                                    .foundDevices[key]!),
-                                subtitle: Text(key),
-                                onTap: () {
-                                  // connect to device
-                                  NearbyService().requestConnection(
-                                      key, '{"type": "request"}'
-                                      // jsonEncode({
-                                      //   "type": "request",
-                                      //   "device_id": context.read<NearbyService>().userName,
-                                      // })
-                                      );
-                                  Provider.of<PageController>(context,
-                                          listen: false)
-                                      .jumpToPage(Pages.responsePage.index);
-                                },
-                              )))));
-                },
-              ))),
-    ]))));
+    return WillPopScope(
+        onWillPop: () {
+          context.read<PageController>().jumpToPage(Pages.sampleFrontend.index);
+          return Future.value(false);
+        },
+        child: Scaffold(
+            body: SafeArea(
+                child: SingleChildScrollView(
+                    child: Column(children: [
+          Container(
+              height: MediaQuery.of(context).size.height * 0.28,
+              child: Stack(children: [
+                Positioned(
+                    top: -10,
+                    left: -110,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.28,
+                      width: 230,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: Color(0x738FE1D7)),
+                    )),
+                Positioned(
+                    top: -110,
+                    left: 0,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.28,
+                      width: 230,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: Color(0x738FE1D7)),
+                    )),
+              ])),
+          Padding(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Text('My Rooms',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 21.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ))),
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                "Number of Rooms ~ ${numberOfRooms}",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 17.0,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                ),
+              )),
+          Padding(
+              padding: EdgeInsets.only(top: 25),
+              child: Container(
+                  padding: EdgeInsets.all(4),
+                  height: numberOfRooms * 83,
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.4),
+                  width: MediaQuery.of(context).size.width * 0.88,
+                  decoration: BoxDecoration(
+                      color: Color.fromARGB(116, 80, 195, 201),
+                      borderRadius: BorderRadius.circular(10)),
+                  //height: MediaQuery.of(context).size.height * 0.88,
+                  // width: MediaQuery.of(context).size.width * 0.88,
+                  child: ListView.builder(
+                    itemCount:
+                        context.watch<NearbyService>().foundDevices.length,
+                    itemBuilder: (context, index) {
+                      String key = context
+                          .watch<NearbyService>()
+                          .foundDevices
+                          .keys
+                          .elementAt(index);
+
+                      return Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(208, 255, 255, 255),
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: SizedBox(
+                                  height: 69,
+                                  child: Center(
+                                      child: ListTile(
+                                    visualDensity: VisualDensity(vertical: 0),
+                                    title: Text(context
+                                        .watch<NearbyService>()
+                                        .foundDevices[key]!),
+                                    subtitle: Text(key),
+                                    onTap: () {
+                                      // connect to device
+                                      NearbyService().requestConnection(
+                                          key, '{"type": "request"}'
+                                          // jsonEncode({
+                                          //   "type": "request",
+                                          //   "device_id": context.read<NearbyService>().userName,
+                                          // })
+                                          );
+                                      Provider.of<PageController>(context,
+                                              listen: false)
+                                          .jumpToPage(
+                                              Pages.sampleResponsePage.index);
+                                    },
+                                  )))));
+                    },
+                  ))),
+        ])))));
   }
 
   void showSnackbar(dynamic a) {
