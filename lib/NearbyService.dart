@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:developer' as developer;
+
 import 'dart:typed_data';
 
+import 'package:sdl/SharedPref.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -48,10 +53,23 @@ extension QuestionTypesExtension on QuestionTypes {
   }
 }
 
+
+
 class NearbyService with ChangeNotifier {
   static final NearbyService _instance = NearbyService._internal();
   factory NearbyService() => _instance;
   NearbyService._internal();
+
+  // var pr = new SharedPref();
+  // pr.set();
+
+
+  //
+  // var uuid = const Uuid();
+  //
+  // var id;
+  //
+  // var p = SharedPref();
 
   bool isSaved = false;
   String fileOpen = "";
@@ -91,7 +109,18 @@ class NearbyService with ChangeNotifier {
       return false;
     }
   }
-  
+
+  Future<SharedPreferences?> setSharedPref() async {
+    try {
+
+      return await SharedPreferences.getInstance();
+    }
+    catch (e) {
+      print('$e');
+    }
+
+  }
+
   Future<String> startDiscovery() async {
     try {
       foundDevices = {};
@@ -218,48 +247,56 @@ class NearbyService with ChangeNotifier {
       String id,
       [String form = ""]
     ) async {
+
+    // p.set();
       await Nearby().acceptConnection(
         id,
-        //TODO: Check if endid is the same as this id
-        onPayLoadRecieved: (endid, pload) async {
+
+          //TODO: Check if id is the same as this id
+        onPayLoadRecieved: (id, pload) async {
+          // String? value = await p.getUuid(id);
+          //
+          // print(value);
+          //
+          // if(value==null){
+          //   id = uuid.v4();
+          //   p.setUuid(id,userName);
+          //   print(id);
+          //   print(userName);
+          // }
+
           if (pload.type == PayloadType.BYTES) {
             String str = String.fromCharCodes(pload.bytes!);
-            // developer.log(str);
             var payload = jsonDecode(str);
-            // developer.log("${pload.id}: ${payload.toString()}");
-            
+
             if(payload["type"] == "request"){
               await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(form)));
             } else if(payload["type"] == "form" || payload["type"] == "response") {
               if(payload.containsKey('content')) {
-                payload["device_id"] = endid;
+
+                payload["device_id"] = id;
+                print(id);
                 payloads.insert(0, payload);
                 if(isAdvertising) {
                   await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode('{"type": "form", "ack": true}')));
                 }
               }
-              // if(isAdvertising) {
-              //   if(payload.containsKey('content')) {
-              //     await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode('{"type": "form", "ack": true}'))));
-              //   } else {
-              //     await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(form))));
-              //   }
-              // }
+
               if(isDiscovering){
                 await Nearby().disconnectFromEndpoint(id);
                 connectedDevices.remove(id);
               }
             } else if(payload["type"] == "share") {
               if(payload["contentType"] == "filename") {
-                payload["device_id"] = endid;
+                payload["device_id"] = id;
                 // developer.log("Filename");
                 payloads.insert(0, payload);
-                // moveFile(endid, payload["payload_id"], payload);
+                // moveFile(id, payload["payload_id"], payload);
                 checkAndMoveFile(payload["payload_id"].toString());
                 
               } else if(payload["contentType"] == "camera") {
                 if(payload["content"] == "open") {
-                  payload["device_id"] = endid;
+                  payload["device_id"] = id;
                   payloads.insert(0, payload);
                 } else if(payload["content"] == "close") {
                   var p = payloads.firstWhere((element) =>
@@ -282,7 +319,7 @@ class NearbyService with ChangeNotifier {
             payloads.insert(0, {
               "type": "share",
               "contentType": "file",
-              "device_id": endid,
+              "device_id": id,
               "payload_id": pload.id,
               "content": pload.uri,
               "moved": false,
@@ -291,7 +328,7 @@ class NearbyService with ChangeNotifier {
           }
           notifyListeners();
         },
-        onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
+        onPayloadTransferUpdate: (id, payloadTransferUpdate) async {
           // developer.log("Update ${payloadTransferUpdate.id}: ${payloadTransferUpdate.status}");
           if(payloadTransferUpdate.status == PayloadStatus.SUCCESS) {
             checkAndMoveFile(id);
@@ -348,11 +385,11 @@ class NearbyService with ChangeNotifier {
     return b;
   }
   
-  // Future<bool> moveFile(String endid, int payloadId, Map<String, dynamic> p) async {
+  // Future<bool> moveFile(String id, int payloadId, Map<String, dynamic> p) async {
   //   bool b;
   //   var filePl = payloads.firstWhere((element) => 
   //     element["payload_id"] == payloadId 
-  //     && element["device_id"] == endid
+  //     && element["device_id"] == id
   //     && element["contentType"] != p["contentType"],
   //     orElse: () => p,
   //     );

@@ -80,10 +80,7 @@ class RoomsState extends State<Rooms> {
                 NearbyService().requestConnection(
                   key, 
                   '{"type": "request"}'
-                  // jsonEncode({
-                  //   "type": "request",
-                  //   "device_id": context.read<NearbyService>().userName,
-                  // })
+
                 );
                 Navigator.pushNamed(context, '/responsePage').then((value) => startDis());
               },

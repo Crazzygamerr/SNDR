@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
+import 'package:sdl/SharedPref.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 import 'SavedForms.dart';
@@ -30,10 +32,14 @@ class CreateFormState extends State<CreateForm> {
   Map<String, dynamic> _json = {};
   late String _jsonString;
 
+  bool isSharing = false;
+  TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
+  List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
+
   // int counter=0;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NearbyService>().removeListener(catchError);
@@ -42,31 +48,10 @@ class CreateFormState extends State<CreateForm> {
       context.read<NearbyService>().addListener(goToConnectedPage);
       _readJson();
       _checkSaved();
-    });
-    // _readJson();
-    // _checkSaved();
 
-    //
-    // if(context.read<NearbyService>().isSaved==true){
-    //   developer.log("TRUETRUE");
-    //
-    //
-    //
-    // }
+    });
 
   }
-
-  // saveJson(source) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   // int counterValue = prefs.getInt("counter") ?? 0;
-  //
-  //   prefs.setString('counterValue',jsonDecode(source));
-  //   // SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   // prefs.setString('stringValue', "abc");
-  //   // setState(() {
-  //   //   counter = counter+1
-  //   // });
-  // }
 
   Future<void> _checkSaved() async {
     if(context.read<NearbyService>().isSaved==true){
@@ -78,7 +63,50 @@ class CreateFormState extends State<CreateForm> {
         developer.log(context.read<NearbyService>().fileOpen);
         developer.log(context.read<NearbyService>().form1[context.read<NearbyService>().fileOpen.split('/').last.split('.').first.toString()].toString());
         setState((){
-          form=context.read<NearbyService>().form1["Untitled Form"];
+          form=context.read<NearbyService>().form1[context.read<NearbyService>().fileOpen.split('/').last.split('.').first.toString()];
+
+            print(form);
+
+            titleController=form["title"];
+            descriptionController=form["description"];
+
+
+
+            var len = form["content"].length;
+
+            for(var i=0;i<len;i++){
+              var curr = form["content"][i];
+              var isReq = form["content"][i]["isRequired"] ?? false;
+              var type = curr["type"];
+              var title = curr["title"];
+
+              form["content"].add({
+                "type": type,
+                "title": title,
+                "options": [
+                  "Option 1",
+                ],
+                "isRequired": isReq
+              });
+
+              optionControllers.add([
+                TextEditingController(text: curr["options"][0]),]);
+              for (var i = 1; i <=curr["options"].length-1 ; i++) {
+                optionControllers[form["content"].length - 1].add(
+                  TextEditingController(text: curr["options"][i]),
+                );
+              }
+
+
+              print(form);
+
+            }
+          print(form);
+            // }
+            // titleController.add(TextEditingController(text:form["content"]["title"] ));
+
+
+
         });
 
         // form=context.read<NearbyService>().form1["Untitled Form"];
@@ -182,6 +210,7 @@ class CreateFormState extends State<CreateForm> {
     // // context.read<NearbyService>().removeListener(goToConnectedPage);
     // // _controllerKey.dispose();
     // // _controllerValue.dispose();
+    // p.dispose();
     context.read<NearbyService>().isSaved=false;
     super.dispose();
   }
@@ -207,15 +236,11 @@ class CreateFormState extends State<CreateForm> {
   };
 
   
-  bool isSharing = false;
-  TextEditingController titleController = TextEditingController(text: "Untitled Form"), descriptionController = TextEditingController();
-  List<List<TextEditingController>> optionControllers = [[TextEditingController(text: "Option 1")]];
-  
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> payloads = context.watch<NearbyService>().payloads;
 
-    // developer.log(form.toString());
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -443,8 +468,9 @@ class CreateFormState extends State<CreateForm> {
                     child: const Text('Save'),
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       NearbyService().startAdvertising(isSharing ? shareMsg : form, isSharing: isSharing);
+
                     },
                     child: const Text('Open'),
                   ),
