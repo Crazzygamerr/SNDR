@@ -58,8 +58,8 @@ class RoomsState extends State<Rooms> {
                       // })
                       );
                   // Navigator.pushNamed(context, '/responsePage').then((value) => startDis());
-                  Provider.of<PageController>(context, listen: false)
-                      .jumpToPage(Pages.responsePage.index);
+                  // Provider.of<PageController>(context, listen: false)
+                  //     .jumpToPage(Pages.responsePage.index);
                 },
               );
             },

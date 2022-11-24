@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_excel/excel.dart';
 import 'dart:developer' as developer;
@@ -120,7 +123,9 @@ class SampleCreateState extends State<SampleCreate> {
     ),
   );
 
-  void exportResponse() {
+  void exportResponse() async {
+    // print("-----------------");
+    // print(await getExternalStorageDirectory());
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
 
@@ -148,7 +153,7 @@ class SampleCreateState extends State<SampleCreate> {
     });
 
     var bytes = excel.save();
-    File(path.join("/storage/emulated/0/Download/", "SNDR Responses.xlsx"))
+    File(path.join("/storage/emulated/0/Download/", "Responses.xlsx"))
       ..createSync(recursive: true)
       ..writeAsBytesSync(bytes ?? []);
   }
@@ -162,7 +167,7 @@ class SampleCreateState extends State<SampleCreate> {
         onWillPop: () {
           context
               .read<PageController>()
-              .jumpToPage(Pages.sampleCreateForm.index);
+              .jumpToPage(Pages.home.index);
           return Future.value(false);
         },
         child: Scaffold(
@@ -724,7 +729,7 @@ class SampleCreateState extends State<SampleCreate> {
                   )),
 
               // Text(const JsonEncoder.withIndent(" ").convert(payloads)),
-              Text(
+              if(payloads[0].isNotEmpty) Text(
                 "Responses",
                 style: TextStyle(
                     fontFamily: 'Poppins',
@@ -992,7 +997,7 @@ class SampleCreateState extends State<SampleCreate> {
                       ]));
                 },
               ),
-              Container(
+              if(payloads[0].isNotEmpty) Container(
                 margin: EdgeInsets.all(25),
                 padding: EdgeInsets.only(top: 28, bottom: 28),
                 child: SizedBox(
