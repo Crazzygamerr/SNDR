@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
-import 'package:sdl/SampleCreate.dart';
 import 'package:sdl/main.dart';
 
 class SampleResponsePage extends StatefulWidget {
@@ -24,7 +23,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment(-1, 0.4),
+      alignment: const Alignment(-1, 0.4),
       child: Container(
         alignment: Alignment.center,
 
@@ -32,22 +31,22 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         width: MediaQuery.of(context).size.width * 0.60,
 
         height: kToolbarHeight + 15,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           // border: Border(
           //     top: BorderSide(width: 2),
           //     right: BorderSide(width: 2),
           //     bottom: BorderSide(width: 2)),
           color: Color.fromARGB(255, 248, 246, 246),
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
+          borderRadius: const BorderRadius.only(
+              topRight: const Radius.circular(15), bottomRight: Radius.circular(15)),
           boxShadow: [
-            BoxShadow(
-              color: Color.fromARGB(156, 61, 61, 61),
+            const BoxShadow(
+              color: const Color.fromARGB(156, 61, 61, 61),
               blurRadius: 10.0,
             ),
           ],
         ),
-        child: Text(
+        child: const Text(
           "Response Page",
           style: TextStyle(
               color: Colors.black,
@@ -62,7 +61,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   ///width doesnt matter
   @override
-  Size get preferredSize => Size(200, kToolbarHeight);
+  Size get preferredSize => const Size(200, kToolbarHeight);
 }
 
 class SampleResponsePageState extends State<SampleResponsePage> {
@@ -76,13 +75,13 @@ class SampleResponsePageState extends State<SampleResponsePage> {
   CameraController? controller;
   TextEditingController textController = TextEditingController();
 
-  Color chatSentColor = Color(0XCC50C2C9);
-  Color chatReceiveColor = Color.fromARGB(180, 143, 225, 215);
+  Color chatSentColor = const Color(0XCC50C2C9);
+  Color chatReceiveColor = const Color.fromARGB(180, 143, 225, 215);
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-    backgroundColor: Color(0XFF50C2C9),
-    minimumSize: Size(88, 36),
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
+    backgroundColor: const Color(0XFF50C2C9),
+    minimumSize: const Size(88, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(2.0)),
     ),
@@ -175,12 +174,12 @@ class SampleResponsePageState extends State<SampleResponsePage> {
 
     return WillPopScope(
         onWillPop: () {
-          context.read<PageController>().jumpToPage(Pages.sampleFrontend.index);
+          context.read<PageController>().jumpToPage(Pages.home.index);
           return Future.value(false);
         },
         child: Scaffold(
           extendBodyBehindAppBar: true,
-          backgroundColor: Color.fromARGB(255, 248, 246, 246),
+          backgroundColor: const Color.fromARGB(255, 248, 246, 246),
           appBar: PreferredSize(
             preferredSize:
                 Size.fromHeight(MediaQuery.of(context).size.height * 0.18),
@@ -188,7 +187,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
               children: [
                 Container(
                     height: MediaQuery.of(context).size.height * 0.37,
-                    decoration: BoxDecoration(color: Color(0XFF50C2C9)),
+                    decoration: const BoxDecoration(color: const Color(0XFF50C2C9)),
                     child: Stack(children: [
                       Positioned(
                           top: -10,
@@ -196,7 +195,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.24,
                             width: 200,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0x738FE1D7)),
                           )),
@@ -206,12 +205,12 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.28,
                             width: 200,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0x738FE1D7)),
                           )),
                     ])),
-                MyAppBar()
+                const MyAppBar()
               ],
             ),
           ),
@@ -236,21 +235,21 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                             child: ListView(
                               children: [
                                 Padding(
-                                    padding: EdgeInsets.only(top: 10, left: 10),
+                                    padding: const EdgeInsets.only(top: 10, left: 10),
                                     child: Text(
                                       form['title'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontFamily: 'Poppins',
                                           fontSize: 21,
                                           letterSpacing: 0.9,
                                           fontWeight: FontWeight.w600),
                                     )),
                                 Padding(
-                                    padding: EdgeInsets.only(
+                                    padding: const EdgeInsets.only(
                                         top: 10, bottom: 10, left: 10),
                                     child: Text(
                                       form['description'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontFamily: 'Poppins',
                                           fontSize: 15,
                                           letterSpacing: 0.9),
@@ -263,15 +262,15 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                     return Card(
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Color.fromARGB(
+                                          color: const Color.fromARGB(
                                               255, 248, 246, 246),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(5)),
+                                          borderRadius: const BorderRadius.all(
+                                              const Radius.circular(5)),
                                           boxShadow: [
                                             BoxShadow(
-                                              offset: Offset(0, 1),
+                                              offset: const Offset(0, 1),
                                               blurRadius: 3,
-                                              color: Color.fromARGB(47, 0, 0, 0)
+                                              color: const Color.fromARGB(47, 0, 0, 0)
                                                   .withOpacity(0.3),
                                             ),
                                           ],
@@ -284,7 +283,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                           children: [
                                             Text(
                                                 form['content'][index]['title'],
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontFamily: 'Poppins',
                                                     fontSize: 16,
                                                     letterSpacing: 0.9)),
@@ -366,7 +365,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                             fillColor:
                                                                 MaterialStateColor.resolveWith(
                                                                     (states) =>
-                                                                        Color.fromARGB(
+                                                                        const Color.fromARGB(
                                                                             255,
                                                                             80,
                                                                             195,
@@ -374,12 +373,12 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                             focusColor:
                                                                 MaterialStateColor.resolveWith(
                                                                     (states) =>
-                                                                        Color.fromARGB(255, 112, 238, 245)))
+                                                                        const Color.fromARGB(255, 112, 238, 245)))
                                                       else
                                                         Theme(
                                                             data: ThemeData(
                                                                 unselectedWidgetColor:
-                                                                    Color.fromARGB(
+                                                                    const Color.fromARGB(
                                                                         255,
                                                                         80,
                                                                         195,
@@ -387,7 +386,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                             child: Checkbox(
                                                               checkColor: Colors
                                                                   .white, // color of tick Mark
-                                                              activeColor: Color
+                                                              activeColor: const Color
                                                                   .fromARGB(
                                                                       255,
                                                                       80,
@@ -423,7 +422,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                       Text(
                                                         form['content'][index]
                                                             ['options'][index2],
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontFamily:
                                                                 'Poppins',
                                                             fontSize: 14,
@@ -451,7 +450,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                             .indexOf(e),
                                                         child: Text(
                                                           e,
-                                                          style: TextStyle(
+                                                          style: const TextStyle(
                                                               fontFamily:
                                                                   'Poppins',
                                                               fontSize: 14,
@@ -477,10 +476,10 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                   },
                                 ),
                                 Padding(
-                                    padding: EdgeInsets.all(10),
+                                    padding: const EdgeInsets.all(10),
                                     child: Text(
                                       "Response sent: ${context.watch<NearbyService>().payloads[0].containsKey('sent') ? context.watch<NearbyService>().payloads[0]['sent'].toString() : "false"}",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: 'Poppins',
                                         color: Colors.black54,
                                         fontSize: 15,
@@ -488,7 +487,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                     )),
                                 Padding(
                                     padding:
-                                        EdgeInsets.only(top: 10, bottom: 20),
+                                        const EdgeInsets.only(top: 10, bottom: 20),
                                     child: ElevatedButton(
                                         style: flatButtonStyle,
                                         onPressed: () {
@@ -504,9 +503,9 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                 jsonEncode(response));
                                           }
                                         },
-                                        child: Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: const Text(
+                                        child: const Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Text(
                                             'Send',
                                             style: TextStyle(
                                                 fontFamily: 'Poppins',
@@ -581,7 +580,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                           color: payloads[index]
                                                   .containsKey("sent")
                                               ? Colors.white
-                                              : Color.fromARGB(167, 0, 0, 0),
+                                              : const Color.fromARGB(167, 0, 0, 0),
                                           fontFamily: 'Poppins',
                                           letterSpacing: 0.5,
                                           fontSize: 15.0),
@@ -703,14 +702,14 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                   Container(
                     height: double.infinity,
                     width: double.infinity,
-                    color: Color.fromARGB(255, 248, 246, 246),
+                    color: const Color.fromARGB(255, 248, 246, 246),
                     alignment: Alignment.center,
                     child: SizedBox(
                         height: MediaQuery.of(context).size.height * 0.2,
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: Column(
                           children: [
-                            Padding(
+                            const Padding(
                                 padding: EdgeInsets.only(bottom: 20),
                                 child: Text(
                                   "CLICK PICTURE",
@@ -722,9 +721,9 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                       color: Color(0XFF50C2C9)),
                                 )),
                             ElevatedButton(
-                              child: IconButton(
+                              child: const IconButton(
                                 iconSize: 40.0,
-                                icon: const Icon(Icons.camera_alt),
+                                icon: Icon(Icons.camera_alt),
                                 onPressed: null,
                               ),
                               onPressed: () async {
@@ -735,11 +734,10 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                 }, addToPayloads: false);
                               },
                               style: ElevatedButton.styleFrom(
-                                shape: CircleBorder(),
-                                padding: EdgeInsets.all(15),
-                                backgroundColor:
-                                    Color.fromARGB(164, 80, 195, 201),
-                                minimumSize: Size(88, 36),
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(15),
+                                primary:const Color.fromARGB(164, 80, 195, 201),
+                                minimumSize: const Size(88, 36),
                               ),
                             )
                           ],

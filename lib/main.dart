@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:nearby_connections/nearby_connections.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/CPSampleFormTypes.dart';
 import 'package:sdl/CreateForm.dart';
 import 'package:sdl/Home.dart';
 import 'package:sdl/NearbyService.dart';
-import 'package:sdl/ResponsePage.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:sdl/Rooms.dart';
-import 'package:sdl/SampleFrontend.dart';
-import 'package:sdl/SampleCreateForm.dart';
 import 'package:sdl/SampleCreate.dart';
-import 'package:sdl/SampleRooms.dart';
+import 'package:sdl/SampleCreateForm.dart';
+import 'package:sdl/SampleFrontend.dart';
 import 'package:sdl/SampleResponsePage.dart';
-import 'package:sdl/CPSampleFormTypes.dart';
+import 'package:sdl/SampleRooms.dart';
 
 void main() => runApp(const MyApp());
 
@@ -33,23 +29,23 @@ class MyAppState extends State<MyApp> {
       child: MaterialApp(
         theme: ThemeData(
           colorScheme: ColorScheme.fromSwatch()
-              .copyWith(secondary: Color.fromARGB(183, 206, 230, 241)),
-          inputDecorationTheme: InputDecorationTheme(
+              .copyWith(secondary: const Color.fromARGB(183, 206, 230, 241)),
+          inputDecorationTheme: const InputDecorationTheme(
               focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0XFF50C2C9)))),
-          textSelectionTheme: TextSelectionThemeData(
+          textSelectionTheme: const TextSelectionThemeData(
             cursorColor: Colors.brown,
             selectionColor: Colors.black,
             selectionHandleColor: Colors.brown,
           ),
-          textTheme: TextTheme(
+          textTheme: const TextTheme(
               subtitle1: TextStyle(
                   color: Color.fromARGB(151, 0, 0, 0), fontFamily: 'Poppins')),
         ),
         debugShowCheckedModeBanner: false,
         // onGenerateRoute: generateRoute,
         // initialRoute: '/',
-        home: PageViewWidget(),
+        home: const PageViewWidget(),
       ),
     );
   }
@@ -58,9 +54,9 @@ class MyAppState extends State<MyApp> {
 enum Pages {
   home,
   createForm,
-  rooms,
-  responsePage,
-  sampleFrontend,
+  // rooms,
+  // responsePage,
+  // sampleFrontend,
   sampleCreateForm,
   sampleCreate,
   cpSampleFormTypes,
@@ -87,7 +83,7 @@ class PageViewWidgetState extends State<PageViewWidget> {
       pageController.addListener(() {
         if (pageController.page == Pages.home.index ||
             pageController.page == Pages.createForm.index ||
-            pageController.page == Pages.sampleFrontend.index ||
+            pageController.page == Pages.home.index ||
             pageController.page == Pages.sampleCreate.index) {
           NearbyService().stopAdvertising();
           NearbyService().stopDiscovery();
@@ -151,10 +147,10 @@ class PageViewWidgetState extends State<PageViewWidget> {
         children: const <Widget>[
           Home(),
           CreateForm(),
-          Rooms(),
-          ResponsePage(),
-          SampleFrontend(),
-          SampleCreateForm(),
+          // Rooms(), 
+          // ResponsePage(),
+          // SampleFrontend(), 
+          SampleCreateForm(), 
           SampleCreate(),
           CPSampleFormTypes(),
           SampleRooms(),

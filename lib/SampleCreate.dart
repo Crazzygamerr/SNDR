@@ -221,6 +221,29 @@ class SampleCreateState extends State<SampleCreate> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
+                      // Padding(
+                      //   padding:
+                      //       EdgeInsets.only(left: 8, right: 8, top: 50, bottom: 15),
+                      //   child: SizedBox(
+                      //     width: MediaQuery.of(context).size.width * 0.88,
+                      //     height: MediaQuery.of(context).size.width * 0.14,
+                      //     child: TextField(
+                      //         textAlign: TextAlign.left,
+                      //         decoration: InputDecoration(
+                      //             hintText: 'Room Name',
+                      //             hintStyle:
+                      //                 TextStyle(fontFamily: 'Poppins', fontSize: 13),
+                      //             focusedBorder: OutlineInputBorder(
+                      //                 borderSide: BorderSide(
+                      //                     width: 3,
+                      //                     color: Color.fromARGB(161, 80, 195, 201)),
+                      //                 borderRadius: BorderRadius.circular(50)),
+                      //             filled: true,
+                      //             fillColor: Colors.white,
+                      //             border: OutlineInputBorder(
+                      //                 borderSide: BorderSide.none,
+                      //                 borderRadius: BorderRadius.circular(50)))),
+                      //   )),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -701,6 +724,13 @@ class SampleCreateState extends State<SampleCreate> {
                   )),
 
               // Text(const JsonEncoder.withIndent(" ").convert(payloads)),
+              Text(
+                "Responses",
+                style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 17.0,
+                    letterSpacing: 1.2),
+              ),
               ListView.builder(
                 itemCount: payloads.length,
                 shrinkWrap: true,
@@ -713,13 +743,6 @@ class SampleCreateState extends State<SampleCreate> {
                       decoration: BoxDecoration(
                           color: Color.fromARGB(255, 248, 246, 246)),
                       child: Column(children: [
-                        Text(
-                          "Responses",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 17.0,
-                              letterSpacing: 1.2),
-                        ),
                         ExpansionTile(
                             // title: Text(payloads[responseIndex]["name"]),
                             onExpansionChanged: (expanded) {
@@ -870,14 +893,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                         'selected'],
                                                                     onChanged:
                                                                         null,
-                                                                    fillColor: MaterialStateColor.resolveWith((states) =>
-                                                                        Color.fromARGB(
-                                                                            255,
-                                                                            80,
-                                                                            195,
-                                                                            201)),
-                                                                    focusColor:
-                                                                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 112, 238, 245)))
+                                                                    )
                                                               else
                                                                 Theme(
                                                                     data: ThemeData(
@@ -972,30 +988,31 @@ class SampleCreateState extends State<SampleCreate> {
                                 ),
                               ),
                             ]),
-                        Container(
-                            margin: EdgeInsets.all(25),
-                            padding: EdgeInsets.only(top: 28, bottom: 28),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.88,
-                              height: 60.0,
-                              child: ElevatedButton(
-                                style: flatButtonStyle,
-                                onPressed: () {
-                                  exportResponse();
-                                },
-                                child: Text(
-                                  "Export Responses",
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.2),
-                                ),
-                              ),
-                            ))
+                        
                       ]));
                 },
               ),
+              Container(
+                margin: EdgeInsets.all(25),
+                padding: EdgeInsets.only(top: 28, bottom: 28),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.88,
+                  height: 60.0,
+                  child: ElevatedButton(
+                    style: flatButtonStyle,
+                    onPressed: () {
+                      exportResponse();
+                    },
+                    child: Text(
+                      "Export Responses",
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2),
+                    ),
+                  ),
+                )),
             ])))));
   }
 }

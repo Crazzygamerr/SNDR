@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
-import 'dart:developer' as developer;
 import 'package:sdl/main.dart';
 
 class SampleRooms extends StatefulWidget {
@@ -47,9 +46,9 @@ class SampleRoomsState extends State<SampleRooms> {
   //     }
   // }
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-    backgroundColor: Color(0XFF50C2C9),
-    minimumSize: Size(88, 36),
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
+    backgroundColor: const Color(0XFF50C2C9),
+    minimumSize: const Size(88, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(2.0)),
     ),
@@ -69,14 +68,14 @@ class SampleRoomsState extends State<SampleRooms> {
 
     return WillPopScope(
         onWillPop: () {
-          context.read<PageController>().jumpToPage(Pages.sampleFrontend.index);
+          context.read<PageController>().jumpToPage(Pages.home.index);
           return Future.value(false);
         },
         child: Scaffold(
             body: SafeArea(
                 child: SingleChildScrollView(
                     child: Column(children: [
-          Container(
+          SizedBox(
               height: MediaQuery.of(context).size.height * 0.28,
               child: Stack(children: [
                 Positioned(
@@ -85,7 +84,7 @@ class SampleRoomsState extends State<SampleRooms> {
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.28,
                       width: 230,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           shape: BoxShape.circle, color: Color(0x738FE1D7)),
                     )),
                 Positioned(
@@ -94,11 +93,11 @@ class SampleRoomsState extends State<SampleRooms> {
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.28,
                       width: 230,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           shape: BoxShape.circle, color: Color(0x738FE1D7)),
                     )),
               ])),
-          Padding(
+          const Padding(
               padding: EdgeInsets.only(bottom: 10),
               child: Text('My Rooms',
                   style: TextStyle(
@@ -108,10 +107,10 @@ class SampleRoomsState extends State<SampleRooms> {
                     fontWeight: FontWeight.bold,
                   ))),
           Padding(
-              padding: EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(top: 10),
               child: Text(
-                "Number of Rooms ~ ${numberOfRooms}",
-                style: TextStyle(
+                "Number of Rooms ~ $numberOfRooms",
+                style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 17.0,
                   color: Colors.black,
@@ -119,15 +118,15 @@ class SampleRoomsState extends State<SampleRooms> {
                 ),
               )),
           Padding(
-              padding: EdgeInsets.only(top: 25),
+              padding: const EdgeInsets.only(top: 25),
               child: Container(
-                  padding: EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(4),
                   height: numberOfRooms * 83,
                   constraints: BoxConstraints(
                       maxHeight: MediaQuery.of(context).size.height * 0.4),
                   width: MediaQuery.of(context).size.width * 0.88,
                   decoration: BoxDecoration(
-                      color: Color.fromARGB(116, 80, 195, 201),
+                      color: const Color.fromARGB(116, 80, 195, 201),
                       borderRadius: BorderRadius.circular(10)),
                   //height: MediaQuery.of(context).size.height * 0.88,
                   // width: MediaQuery.of(context).size.width * 0.88,
@@ -142,16 +141,16 @@ class SampleRoomsState extends State<SampleRooms> {
                           .elementAt(index);
 
                       return Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(5),
                           child: Container(
                               decoration: BoxDecoration(
-                                  color: Color.fromARGB(208, 255, 255, 255),
+                                  color: const Color.fromARGB(208, 255, 255, 255),
                                   borderRadius: BorderRadius.circular(12)),
                               child: SizedBox(
                                   height: 69,
                                   child: Center(
                                       child: ListTile(
-                                    visualDensity: VisualDensity(vertical: 0),
+                                    visualDensity: const VisualDensity(vertical: 0),
                                     title: Text(context
                                         .watch<NearbyService>()
                                         .foundDevices[key]!),

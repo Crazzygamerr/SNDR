@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:developer' as developer;
 import 'package:sdl/main.dart';
 
 class CPSampleFormTypes extends StatefulWidget {
@@ -23,9 +22,9 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
   }
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-    backgroundColor: Color(0XFF50C2C9),
-    minimumSize: Size(88, 36),
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
+    backgroundColor: const Color(0XFF50C2C9),
+    minimumSize: const Size(88, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(2.0)),
     ),
@@ -35,14 +34,14 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () {
-          context.read<PageController>().jumpToPage(Pages.sampleFrontend.index);
+          context.read<PageController>().jumpToPage(Pages.home.index);
           return Future.value(false);
         },
         child: Scaffold(
-            backgroundColor: Color.fromARGB(255, 248, 246, 246),
+            backgroundColor: const Color.fromARGB(255, 248, 246, 246),
             body: SafeArea(
                 child: Column(children: [
-              Container(
+              SizedBox(
                   height: MediaQuery.of(context).size.height * 0.30,
                   child: Stack(children: [
                     Positioned(
@@ -51,7 +50,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.30,
                           width: 250,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
                         )),
                     Positioned(
@@ -60,14 +59,14 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.30,
                           width: 250,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
                         )),
                   ])),
               Container(
                 alignment: Alignment.topLeft,
-                margin: EdgeInsets.all(10),
-                padding: EdgeInsets.only(left: 40),
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.only(left: 40),
                 child: Image.asset(
                   'assets/formtypes2.jpeg',
                   height: 100,
@@ -76,8 +75,8 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
               ),
               Container(
                 alignment: Alignment.center,
-                margin: EdgeInsets.all(5),
-                padding: EdgeInsets.only(left: 200, bottom: 10),
+                margin: const EdgeInsets.all(5),
+                padding: const EdgeInsets.only(left: 200, bottom: 10),
                 child: Image.asset(
                   'assets/Formtypes1.jpeg',
                   height: 100,
@@ -85,8 +84,8 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                 ),
               ),
               Container(
-                  padding: EdgeInsets.only(top: 2),
-                  margin: EdgeInsets.only(top: 5, right: 25, left: 25),
+                  padding: const EdgeInsets.only(top: 2),
+                  margin: const EdgeInsets.only(top: 5, right: 25, left: 25),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.88,
                     height: 60.0,
@@ -96,7 +95,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                         Provider.of<PageController>(context, listen: false)
                             .jumpToPage(Pages.sampleCreateForm.index);
                       },
-                      child: Text(
+                      child: const Text(
                         "EXISTING FORM",
                         style: TextStyle(
                             fontFamily: 'Poppins',
@@ -107,8 +106,8 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                     ),
                   )),
               Container(
-                  padding: EdgeInsets.only(top: 2),
-                  margin: EdgeInsets.only(top: 8, right: 25, left: 25),
+                  padding: const EdgeInsets.only(top: 2),
+                  margin: const EdgeInsets.only(top: 8, right: 25, left: 25),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.88,
                     height: 60.0,
@@ -118,7 +117,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                         Provider.of<PageController>(context, listen: false)
                             .jumpToPage(Pages.sampleCreateForm.index);
                       },
-                      child: Text(
+                      child: const Text(
                         "NEW FORM",
                         style: TextStyle(
                             fontFamily: 'Poppins',
@@ -129,8 +128,8 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                     ),
                   )),
               Container(
-                  padding: EdgeInsets.only(top: 2),
-                  margin: EdgeInsets.only(top: 8, right: 25, left: 25),
+                  padding: const EdgeInsets.only(top: 2),
+                  margin: const EdgeInsets.only(top: 8, right: 25, left: 25),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.88,
                     height: 60.0,
@@ -140,7 +139,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                         Provider.of<PageController>(context, listen: false)
                             .jumpToPage(Pages.sampleCreateForm.index);
                       },
-                      child: Text(
+                      child: const Text(
                         "ATTENDANCE",
                         style: TextStyle(
                             fontFamily: 'Poppins',
