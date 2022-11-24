@@ -219,15 +219,7 @@ class SampleResponsePageState extends State<SampleResponsePage> {
             child: Stack(
               children: [
                 // if (isSharing!) ...[
-                Positioned(
-                    top: -110,
-                    right: 0,
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.28,
-                      width: 200,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: Color(0x738FE1D7)),
-                    )),
+
                 // ],
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -711,19 +703,47 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                   Container(
                     height: double.infinity,
                     width: double.infinity,
-                    color: Colors.black,
-                    child: Center(
-                      child: ElevatedButton(
-                        child: const Text("Take picture"),
-                        onPressed: () async {
-                          NearbyService().sendBytesPayload({
-                            "type": "share",
-                            "contentType": "camera",
-                            "content": "clickImage",
-                          }, addToPayloads: false);
-                        },
-                      ),
-                    ),
+                    color: Color.fromARGB(255, 248, 246, 246),
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: Column(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(bottom: 20),
+                                child: Text(
+                                  "CLICK PICTURE",
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.2,
+                                      color: Color(0XFF50C2C9)),
+                                )),
+                            ElevatedButton(
+                              child: IconButton(
+                                iconSize: 40.0,
+                                icon: const Icon(Icons.camera_alt),
+                                onPressed: null,
+                              ),
+                              onPressed: () async {
+                                NearbyService().sendBytesPayload({
+                                  "type": "share",
+                                  "contentType": "camera",
+                                  "content": "clickImage",
+                                }, addToPayloads: false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: CircleBorder(),
+                                padding: EdgeInsets.all(15),
+                                backgroundColor:
+                                    Color.fromARGB(164, 80, 195, 201),
+                                minimumSize: Size(88, 36),
+                              ),
+                            )
+                          ],
+                        )),
                   ),
                 if (isCameraOpen && controller != null)
                   Container(

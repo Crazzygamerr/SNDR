@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_excel/excel.dart';
 import 'dart:developer' as developer;
+import 'package:path/path.dart' as path;
 import 'package:sdl/NearbyService.dart';
 import 'package:sdl/main.dart';
+import 'dart:io';
 
 class SampleCreate extends StatefulWidget {
   const SampleCreate({Key? key}) : super(key: key);
@@ -11,7 +14,7 @@ class SampleCreate extends StatefulWidget {
   SampleCreateState createState() => SampleCreateState();
 }
 
-final List<String> formType = ['Attendance', 'Quiz', 'FormType1', 'Club'];
+// final List<String> formType = ['Attendance', 'Quiz', 'FormType1', 'Club'];
 bool isChecked = false;
 
 final _lowColor = Colors.black38;
@@ -20,6 +23,8 @@ final _highColor = Color.fromARGB(161, 80, 195, 201);
 final _lowBgColor = Colors.white;
 
 Color _fieldColor = _lowColor;
+
+Color _textColor = Colors.black38;
 
 final _lowDescColor = Colors.black38;
 final _highDescColor = Color.fromARGB(161, 80, 195, 201);
@@ -99,7 +104,8 @@ class SampleCreateState extends State<SampleCreate> {
   };
 
   // bool isSharing = false;
-  TextEditingController titleController = TextEditingController(text: ""),
+  TextEditingController titleController =
+          TextEditingController(text: "Untitled Form"),
       descriptionController = TextEditingController();
   List<List<TextEditingController>> optionControllers = [
     [TextEditingController(text: "Option 1")]
@@ -113,6 +119,39 @@ class SampleCreateState extends State<SampleCreate> {
       borderRadius: BorderRadius.all(Radius.circular(2.0)),
     ),
   );
+
+  void exportResponse() {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+
+    context.read<NearbyService>().payloads.forEach((element) {
+      if (element.containsKey("content")) {
+        List<String> row = [element["device_id"]];
+        element["content"].forEach((element) {
+          if (element["type"] == QuestionTypes.singleLine.value ||
+              element["type"] == QuestionTypes.multiLine.value) {
+            row.add(element["response"]);
+          } else if (element["type"] == QuestionTypes.checkbox.value) {
+            String checked = "";
+            for (int i = 0; i < element["checked"].length; i++) {
+              checked += element["options"][element["checked"][i]];
+              if (i != element["checked"].length - 1) checked += ", ";
+            }
+            row.add(checked);
+          } else if (element["type"] == QuestionTypes.multipleChoice.value ||
+              element["type"] == QuestionTypes.dropdown.value) {
+            row.add(element["options"][element["selected"]]);
+          }
+        });
+        sheet.appendRow(row);
+      }
+    });
+
+    var bytes = excel.save();
+    File(path.join("/storage/emulated/0/Download/", "SNDR Responses.xlsx"))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(bytes ?? []);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -613,40 +652,42 @@ class SampleCreateState extends State<SampleCreate> {
                               letterSpacing: 1.2)),
                       // Text(const JsonEncoder.withIndent("  ").convert(form)),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton(
-                            style: flatButtonStyle,
-                            onPressed: () {
-                              NearbyService().stopAdvertising();
-                              // developer.log(QuestionTypes.dropdown.value);
-                              // developer.log(const JsonEncoder.withIndent("  ").convert(form));
-                            },
-                            child: const Text('Close',
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 1.2)),
-                          ),
-                          ElevatedButton(
-                            style: flatButtonStyle,
-                            onPressed: () {
-                              NearbyService().startAdvertising(
-                                  context.read<NearbyService>().isSharing
-                                      ? shareMsg
-                                      : form);
-                            },
-                            child: const Text('Open',
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 1.2)),
-                          ),
-                        ],
-                      ),
+                      Padding(
+                          padding: EdgeInsets.only(bottom: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                style: flatButtonStyle,
+                                onPressed: () {
+                                  NearbyService().stopAdvertising();
+                                  // developer.log(QuestionTypes.dropdown.value);
+                                  // developer.log(const JsonEncoder.withIndent("  ").convert(form));
+                                },
+                                child: const Text('Close',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.2)),
+                              ),
+                              ElevatedButton(
+                                style: flatButtonStyle,
+                                onPressed: () {
+                                  NearbyService().startAdvertising(
+                                      context.read<NearbyService>().isSharing
+                                          ? shareMsg
+                                          : form);
+                                },
+                                child: const Text('Open',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.2)),
+                              ),
+                            ],
+                          )),
 
                       // ElevatedButton(
                       //   onPressed: () {
@@ -658,28 +699,303 @@ class SampleCreateState extends State<SampleCreate> {
                       // ),
                     ],
                   )),
-              Container(
-                  margin: EdgeInsets.all(25),
-                  padding: EdgeInsets.only(top: 28, bottom: 28),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.88,
-                    height: 60.0,
-                    child: ElevatedButton(
-                      style: flatButtonStyle,
-                      onPressed: () {
-                        Provider.of<PageController>(context, listen: false)
-                            .jumpToPage(Pages.createForm.index);
-                      },
-                      child: Text(
-                        "Create Form",
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.2),
-                      ),
-                    ),
-                  )),
+
+              // Text(const JsonEncoder.withIndent(" ").convert(payloads)),
+              ListView.builder(
+                itemCount: payloads.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, responseIndex) {
+                  if (payloads[responseIndex].isEmpty ||
+                      !payloads[responseIndex].containsKey("content"))
+                    return Container();
+                  return Container(
+                      decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 248, 246, 246)),
+                      child: Column(children: [
+                        Text(
+                          "Responses",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 17.0,
+                              letterSpacing: 1.2),
+                        ),
+                        ExpansionTile(
+                            // title: Text(payloads[responseIndex]["name"]),
+                            onExpansionChanged: (expanded) {
+                              setState(() {
+                                if (expanded) {
+                                  _textColor =
+                                      Color.fromARGB(255, 80, 185, 201);
+                                } else {
+                                  _textColor = Colors.black45;
+                                }
+                              });
+                            },
+                            title: Text(
+                              payloads[responseIndex]["device_id"],
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 1.2,
+                                  color: _textColor),
+                            ),
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Text(
+                                          "${payloads[responseIndex]["device_id"]}",
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            letterSpacing: 1.2,
+                                          ),
+                                        )),
+                                    ListView.builder(
+                                      itemCount: payloads[responseIndex]
+                                              ["content"]
+                                          .length,
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, questionIndex) {
+                                        return Padding(
+                                            padding: questionIndex ==
+                                                    payloads.length - 1
+                                                ? const EdgeInsets.fromLTRB(
+                                                    8, 0, 8, 0)
+                                                : const EdgeInsets.all(8),
+                                            child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Color.fromARGB(
+                                                      255, 248, 246, 246),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(5)),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      offset: Offset(0, 1),
+                                                      blurRadius: 3,
+                                                      color: Color.fromARGB(
+                                                              47, 0, 0, 0)
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                padding: EdgeInsets.all(10.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                        payloads[responseIndex]
+                                                                    ['content']
+                                                                [questionIndex]
+                                                            ["title"],
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Poppins',
+                                                            fontSize: 14,
+                                                            letterSpacing:
+                                                                0.9)),
+                                                    if (payloads[responseIndex]['content'][questionIndex]["type"] == QuestionTypes.singleLine.value ||
+                                                        payloads[responseIndex]['content']
+                                                                    [questionIndex]
+                                                                ["type"] ==
+                                                            QuestionTypes
+                                                                .multiLine
+                                                                .value) ...[
+                                                      Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  top: 10.0),
+                                                          child: Text(
+                                                            payloads[responseIndex]
+                                                                        [
+                                                                        'content']
+                                                                    [
+                                                                    questionIndex]
+                                                                ["response"],
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    'Poppins',
+                                                                fontSize: 14,
+                                                                letterSpacing:
+                                                                    0.9,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        158,
+                                                                        46,
+                                                                        32,
+                                                                        32)),
+                                                          )),
+                                                    ] else if (payloads[responseIndex]['content'][questionIndex]['type'] == QuestionTypes.multipleChoice.value ||
+                                                        payloads[responseIndex]
+                                                                        ['content']
+                                                                    [questionIndex]
+                                                                ['type'] ==
+                                                            QuestionTypes
+                                                                .checkbox
+                                                                .value) ...[
+                                                      ListView.builder(
+                                                        shrinkWrap: true,
+                                                        physics:
+                                                            const NeverScrollableScrollPhysics(),
+                                                        itemCount: payloads[responseIndex]
+                                                                        [
+                                                                        'content']
+                                                                    [
+                                                                    questionIndex]
+                                                                ['options']
+                                                            .length,
+                                                        itemBuilder: (context,
+                                                            optionIndex) {
+                                                          return Row(
+                                                            children: [
+                                                              if (payloads[responseIndex]
+                                                                              ['content']
+                                                                          [questionIndex][
+                                                                      'type'] ==
+                                                                  QuestionTypes
+                                                                      .multipleChoice
+                                                                      .value)
+                                                                Radio(
+                                                                    value:
+                                                                        optionIndex,
+                                                                    groupValue: payloads[responseIndex]['content']
+                                                                            [questionIndex][
+                                                                        'selected'],
+                                                                    onChanged:
+                                                                        null,
+                                                                    fillColor: MaterialStateColor.resolveWith((states) =>
+                                                                        Color.fromARGB(
+                                                                            255,
+                                                                            80,
+                                                                            195,
+                                                                            201)),
+                                                                    focusColor:
+                                                                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 112, 238, 245)))
+                                                              else
+                                                                Theme(
+                                                                    data: ThemeData(
+                                                                        unselectedWidgetColor: Color.fromARGB(
+                                                                            255,
+                                                                            80,
+                                                                            195,
+                                                                            201)),
+                                                                    child:
+                                                                        Checkbox(
+                                                                      value: payloads[responseIndex]['content'][questionIndex]
+                                                                              [
+                                                                              'checked']
+                                                                          .contains(
+                                                                              optionIndex),
+                                                                      onChanged:
+                                                                          null,
+                                                                      checkColor: Color.fromARGB(
+                                                                          255,
+                                                                          255,
+                                                                          255,
+                                                                          255), // color of tick Mark
+                                                                      activeColor:
+                                                                          Color(
+                                                                              0xFF3BCBD2),
+                                                                    )),
+                                                              Text(
+                                                                  payloads[responseIndex]['content']
+                                                                              [
+                                                                              questionIndex]
+                                                                          [
+                                                                          'options']
+                                                                      [
+                                                                      optionIndex],
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Poppins',
+                                                                      fontSize:
+                                                                          14,
+                                                                      letterSpacing:
+                                                                          0.9)),
+                                                            ],
+                                                          );
+                                                        },
+                                                      )
+                                                    ] else if (payloads[responseIndex]
+                                                                ['content']
+                                                            [questionIndex]['type'] ==
+                                                        QuestionTypes.dropdown.value) ...[
+                                                      DropdownButton(
+                                                        value: payloads[responseIndex]
+                                                                    ['content']
+                                                                [questionIndex]
+                                                            ['selected'],
+                                                        items: payloads[responseIndex]
+                                                                        [
+                                                                        'content']
+                                                                    [
+                                                                    questionIndex]
+                                                                ['options']
+                                                            .map<
+                                                                DropdownMenuItem<
+                                                                    int>>(
+                                                              (e) =>
+                                                                  DropdownMenuItem<
+                                                                      int>(
+                                                                value: payloads[responseIndex]['content']
+                                                                            [
+                                                                            questionIndex]
+                                                                        [
+                                                                        'options']
+                                                                    .indexOf(e),
+                                                                child: Text(e,
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            'Poppins',
+                                                                        fontSize:
+                                                                            14,
+                                                                        letterSpacing:
+                                                                            0.9)),
+                                                              ),
+                                                            )
+                                                            .toList(),
+                                                        onChanged: null,
+                                                      )
+                                                    ],
+                                                  ],
+                                                )));
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
+                        Container(
+                            margin: EdgeInsets.all(25),
+                            padding: EdgeInsets.only(top: 28, bottom: 28),
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.88,
+                              height: 60.0,
+                              child: ElevatedButton(
+                                style: flatButtonStyle,
+                                onPressed: () {
+                                  exportResponse();
+                                },
+                                child: Text(
+                                  "Export Responses",
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.2),
+                                ),
+                              ),
+                            ))
+                      ]));
+                },
+              ),
             ])))));
   }
 }
