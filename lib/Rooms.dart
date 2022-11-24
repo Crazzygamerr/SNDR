@@ -11,21 +11,20 @@ class Rooms extends StatefulWidget {
 }
 
 class RoomsState extends State<Rooms> {
-  
   @override
   void initState() {
     super.initState();
     startDis();
   }
-  
+
   void startDis() async {
     await NearbyService().stopAllEndpoints();
     String s = await NearbyService().startDiscovery();
-    if(s != 'true') {
+    if (s != 'true') {
       showSnackbar(s);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -41,23 +40,26 @@ class RoomsState extends State<Rooms> {
           child: ListView.builder(
             itemCount: context.watch<NearbyService>().foundDevices.length,
             itemBuilder: (context, index) {
-              String key = context.watch<NearbyService>().foundDevices.keys.elementAt(index);
-              
+              String key = context
+                  .watch<NearbyService>()
+                  .foundDevices
+                  .keys
+                  .elementAt(index);
+
               return ListTile(
                 title: Text(context.watch<NearbyService>().foundDevices[key]!),
                 subtitle: Text(key),
                 onTap: () {
                   // connect to device
-                  NearbyService().requestConnection(
-                    key, 
-                    '{"type": "request"}'
-                    // jsonEncode({
-                    //   "type": "request",
-                    //   "device_id": context.read<NearbyService>().userName,
-                    // })
-                  );
+                  NearbyService().requestConnection(key, '{"type": "request"}'
+                      // jsonEncode({
+                      //   "type": "request",
+                      //   "device_id": context.read<NearbyService>().userName,
+                      // })
+                      );
                   // Navigator.pushNamed(context, '/responsePage').then((value) => startDis());
-                  Provider.of<PageController>(context, listen: false).jumpToPage(Pages.responsePage.index);
+                  Provider.of<PageController>(context, listen: false)
+                      .jumpToPage(Pages.responsePage.index);
                 },
               );
             },
@@ -66,7 +68,7 @@ class RoomsState extends State<Rooms> {
       ),
     );
   }
-  
+
   void showSnackbar(dynamic a) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(a.toString()),

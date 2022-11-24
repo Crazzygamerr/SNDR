@@ -1,9 +1,9 @@
-
 // import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sdl/main.dart';
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -12,13 +12,12 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  
   @override
   void initState() {
     super.initState();
     checkPermissions();
   }
-  
+
   List<bool> permissions = [false, false, false, false];
   void checkPermissions() async {
     // permissions[0] = await Permission.location.isGranted;
@@ -39,7 +38,7 @@ class HomeState extends State<Home> {
     //permissions[3] = await Nearby().checkLocationPermission() && await Nearby().checkLocationEnabled();
     setState(() {});
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,16 +53,25 @@ class HomeState extends State<Home> {
               ElevatedButton(
                 onPressed: () {
                   // Navigator.pushNamed(context, '/createForm');
-                  Provider.of<PageController>(context, listen: false).jumpToPage(Pages.createForm.index);
-                }, 
+                  Provider.of<PageController>(context, listen: false)
+                      .jumpToPage(Pages.createForm.index);
+                },
                 child: const Text('Form'),
               ),
               ElevatedButton(
                 onPressed: () {
                   // Navigator.pushNamed(context, '/rooms');
-                  Provider.of<PageController>(context, listen: false).jumpToPage(Pages.rooms.index);
-                }, 
+                  Provider.of<PageController>(context, listen: false)
+                      .jumpToPage(Pages.rooms.index);
+                },
                 child: const Text('Rooms'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<PageController>(context, listen: false)
+                      .jumpToPage(Pages.sampleFrontend.index);
+                },
+                child: const Text('Sample'),
               ),
               // ...context.watch<NearbyService>().payloads.map((e) => Text(e.toString())),
               // ElevatedButton(
@@ -75,7 +83,7 @@ class HomeState extends State<Home> {
               //     //   context.read<NearbyService>().cameraController = controller;
               //     //   setState(() {});
               //     // });
-              //   }, 
+              //   },
               //   child: const Text('Test'),
               // ),
             ],
