@@ -5,6 +5,7 @@ import 'package:sdl/CreateForm.dart';
 import 'package:sdl/Home.dart';
 import 'package:sdl/NearbyService.dart';
 import 'package:sdl/ResponsePage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sdl/Rooms.dart';
 import 'package:sdl/SampleFrontend.dart';
 import 'package:sdl/SampleCreateForm.dart';
@@ -163,53 +164,3 @@ class PageViewWidgetState extends State<PageViewWidget> {
     );
   }
 }
-
-// // Route<dynamic> generateRoute(RouteSettings settings) {
-//   switch (settings.name) {
-//     case '/':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const Home());
-//     case '/rooms':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const Rooms());
-//     case '/responsePage':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const ResponsePage());
-//     case '/createForm':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const CreateForm());
-//     // case 'formPage':
-//     //   return MaterialPageRoute(builder: (_) => const TempPage());
-//     case '/sampleFrontend':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const SampleFrontend());
-
-//     case '/sampleCreateForm':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const SampleCreateForm());
-
-//     case '/sampleCreate':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const SampleCreate());
-//     case '/cpSampleFormTypes':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const CPSampleFormTypes());
-
-//     case '/sampleRooms':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const SampleRooms());
-
-//     case '/sampleResponsePage':
-//       return MaterialPageRoute(
-//           settings: settings, builder: (_) => const SampleResponsePage());
-
-//     default:
-//       return MaterialPageRoute(
-//           builder: (_) => Scaffold(
-//                 body: SafeArea(
-//                   child: Center(
-//                       child: Text('No route defined for ${settings.name}')),
-//                 ),
-//               ));
-//   }
-// }
