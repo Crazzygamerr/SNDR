@@ -51,15 +51,15 @@ class RoomsState extends State<Rooms> {
                 subtitle: Text(key),
                 onTap: () {
                   // connect to device
-                  NearbyService().requestConnection(key, '{"type": "request"}'
+                  NearbyService().requestConnection(key, {"type": "request"}
                       // jsonEncode({
                       //   "type": "request",
                       //   "device_id": context.read<NearbyService>().userName,
                       // })
                       );
                   // Navigator.pushNamed(context, '/responsePage').then((value) => startDis());
-                  Provider.of<PageController>(context, listen: false)
-                      .jumpToPage(Pages.responsePage.index);
+                  // Provider.of<PageController>(context, listen: false)
+                  //     .jumpToPage(Pages.responsePage.index);
                 },
               );
             },

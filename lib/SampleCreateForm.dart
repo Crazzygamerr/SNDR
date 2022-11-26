@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/NearbyService.dart';
 import 'dart:developer' as developer;
 import 'package:sdl/main.dart';
 
@@ -11,22 +12,12 @@ class SampleCreateForm extends StatefulWidget {
 }
 
 //enum formType { Attendance, Quiz, FormType1, Club }
-final List<String> formType = ['Attendance', 'Quiz', 'FormType1', 'Club'];
+final List<String> formType = ['Form', 'Share'];
 
 String? _formTypeSelected;
 
 class SampleCreateFormState extends State<SampleCreateForm> {
-  @override
-  void initState() {
-    super.initState();
-    super.activate();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
+  
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
     backgroundColor: Color(0XFF50C2C9),
     minimumSize: Size(88, 36),
@@ -115,27 +106,27 @@ class SampleCreateFormState extends State<SampleCreateForm> {
                                 borderSide: BorderSide.none,
                                 borderRadius: BorderRadius.circular(50)))),
                   )),
-              Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 15),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.88,
-                    height: MediaQuery.of(context).size.width * 0.15,
-                    child: TextField(
-                        decoration: InputDecoration(
-                            hintText: 'Creator Name',
-                            hintStyle:
-                                TextStyle(fontFamily: 'Poppins', fontSize: 13),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    width: 3,
-                                    color: Color.fromARGB(161, 80, 195, 201)),
-                                borderRadius: BorderRadius.circular(50)),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.circular(50)))),
-                  )),
+              // Padding(
+              //     padding: EdgeInsets.only(top: 10, bottom: 15),
+              //     child: SizedBox(
+              //       width: MediaQuery.of(context).size.width * 0.88,
+              //       height: MediaQuery.of(context).size.width * 0.15,
+              //       child: TextField(
+              //           decoration: InputDecoration(
+              //               hintText: 'Creator Name',
+              //               hintStyle:
+              //                   TextStyle(fontFamily: 'Poppins', fontSize: 13),
+              //               focusedBorder: OutlineInputBorder(
+              //                   borderSide: BorderSide(
+              //                       width: 3,
+              //                       color: Color.fromARGB(161, 80, 195, 201)),
+              //                   borderRadius: BorderRadius.circular(50)),
+              //               filled: true,
+              //               fillColor: Colors.white,
+              //               border: OutlineInputBorder(
+              //                   borderSide: BorderSide.none,
+              //                   borderRadius: BorderRadius.circular(50)))),
+              //     )),
               Padding(
                   padding: EdgeInsets.only(top: 10),
                   child: SizedBox(
@@ -149,7 +140,7 @@ class SampleCreateFormState extends State<SampleCreateForm> {
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
-                            hint: Text("Enter Purpose",
+                            hint: Text("Type",
                                 style: TextStyle(
                                     fontFamily: 'Poppins', fontSize: 13)),
                             items: formType

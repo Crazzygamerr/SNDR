@@ -1,11 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_excel/excel.dart';
-import 'dart:developer' as developer;
 import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
 import 'package:sdl/NearbyService.dart';
 import 'package:sdl/main.dart';
-import 'dart:io';
 
 class SampleCreate extends StatefulWidget {
   const SampleCreate({Key? key}) : super(key: key);
@@ -17,17 +18,17 @@ class SampleCreate extends StatefulWidget {
 // final List<String> formType = ['Attendance', 'Quiz', 'FormType1', 'Club'];
 bool isChecked = false;
 
-final _lowColor = Colors.black38;
-final _highColor = Color.fromARGB(161, 80, 195, 201);
+const _lowColor = Colors.black38;
+const _highColor = const Color.fromARGB(161, 80, 195, 201);
 
-final _lowBgColor = Colors.white;
+const _lowBgColor = Colors.white;
 
 Color _fieldColor = _lowColor;
 
 Color _textColor = Colors.black38;
 
-final _lowDescColor = Colors.black38;
-final _highDescColor = Color.fromARGB(161, 80, 195, 201);
+const _lowDescColor = Colors.black38;
+const _highDescColor = const Color.fromARGB(161, 80, 195, 201);
 
 Color _fieldDescColor = _lowDescColor;
 
@@ -102,25 +103,35 @@ class SampleCreateState extends State<SampleCreate> {
       }
     ],
   };
+  
+  final bool _fileExists = false;
+  late File _filePath;
+  final Map<String, dynamic> _json = {};
+  late String _jsonString;
 
-  // bool isSharing = false;
+  bool isSharing = false;
   TextEditingController titleController =
           TextEditingController(text: "Untitled Form"),
       descriptionController = TextEditingController();
+  List<TextEditingController> questionControllers = [
+    TextEditingController(text: "Untitled Question")
+  ];
   List<List<TextEditingController>> optionControllers = [
     [TextEditingController(text: "Option 1")]
   ];
 
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-    backgroundColor: Color(0XFF50C2C9),
-    minimumSize: Size(88, 36),
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
+    backgroundColor: const Color(0XFF50C2C9),
+    minimumSize: const Size(88, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(2.0)),
     ),
   );
 
-  void exportResponse() {
+  void exportResponse() async {
+    // print("-----------------");
+    // print(await getExternalStorageDirectory());
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
 
@@ -148,10 +159,90 @@ class SampleCreateState extends State<SampleCreate> {
     });
 
     var bytes = excel.save();
-    File(path.join("/storage/emulated/0/Download/", "SNDR Responses.xlsx"))
+    File(path.join("/storage/emulated/0/Download/", "Responses.xlsx"))
       ..createSync(recursive: true)
       ..writeAsBytesSync(bytes ?? []);
   }
+  
+  @override
+  void initState() {
+    super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if(Provider.of<NearbyService>(context, listen: false).savedForm.isNotEmpty) {
+    //     setForm();
+    //   }
+    // });
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(Provider.of<NearbyService>(context, listen: false).savedForm != null && Provider.of<NearbyService>(context, listen: false).savedForm!.isNotEmpty) {
+      setForm();
+    }
+  }
+  
+  Future<void> setForm() async {
+    // print(Provider.of<NearbyService>(context, listen: false).savedForm);
+    form = jsonDecode(jsonEncode(Provider.of<NearbyService>(context, listen: false).savedForm));
+    Provider.of<NearbyService>(context, listen: false).savedForm = null;
+    
+    titleController.text = form["title"];
+    descriptionController.text = form["description"];
+    optionControllers = [];
+    questionControllers = [];
+    
+    for (int i = 0; i < form["content"].length; i++) {
+      questionControllers.add(TextEditingController(text: form["content"][i]["title"]));
+      List<TextEditingController> temp = [];
+      for (int j = 0; j < form["content"][i]["options"].length; j++) {
+        temp.add(TextEditingController(text: form["content"][i]["options"][j]));
+      }
+      optionControllers.add(temp);
+    }
+    
+    setState(() {});
+  }
+
+
+  // Future<String> readFile(String path) async {
+  //   return await File(path).readAsString();
+  // }
+
+  // Future<String> get _localPath async {
+  //   final directory = await getApplicationDocumentsDirectory();
+  //   return directory.path;
+  // }
+
+  // Future<File> get _localFile async {
+  //   final path = await _localPath;
+  //   String txt=titleController.text.toString();
+  //   return File('$path/$txt''.json');
+  // }
+
+  // void _writeJson() async {
+  //   Map<String, dynamic> _newJson = {key: value};
+  //   _json.addAll(_newJson);
+
+  //   _jsonString = jsonEncode(_json);
+
+  //   _filePath.writeAsString(_jsonString);
+  // }
+
+  // void _readJson() async {
+  //   _filePath = await _localFile;
+
+  //   _fileExists = await _filePath.exists();
+
+  //   if (_fileExists) {
+  //     try {
+  //       _jsonString = await _filePath.readAsString();
+  //       _json = jsonDecode(_jsonString);
+  //     } catch (e) {
+  //       print('Tried reading _file error: $e');
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -162,16 +253,16 @@ class SampleCreateState extends State<SampleCreate> {
         onWillPop: () {
           context
               .read<PageController>()
-              .jumpToPage(Pages.sampleCreateForm.index);
+              .jumpToPage(Pages.home.index);
           return Future.value(false);
         },
         child: Scaffold(
             resizeToAvoidBottomInset: true,
-            backgroundColor: Color.fromARGB(255, 248, 246, 246),
+            backgroundColor: const Color.fromARGB(255, 248, 246, 246),
             body: SafeArea(
                 child: SingleChildScrollView(
                     child: Column(children: [
-              Container(
+              SizedBox(
                   height: MediaQuery.of(context).size.height * 0.28,
                   child: Stack(children: [
                     Positioned(
@@ -180,7 +271,7 @@ class SampleCreateState extends State<SampleCreate> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.28,
                           width: 230,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
                         )),
                     Positioned(
@@ -189,11 +280,11 @@ class SampleCreateState extends State<SampleCreate> {
                         child: Container(
                           height: MediaQuery.of(context).size.height * 0.28,
                           width: 230,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               shape: BoxShape.circle, color: Color(0x738FE1D7)),
                         )),
                   ])),
-              Padding(
+              const Padding(
                   padding: EdgeInsets.only(bottom: 10),
                   child: Text('Create Form',
                       style: TextStyle(
@@ -202,7 +293,7 @@ class SampleCreateState extends State<SampleCreate> {
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ))),
-              Padding(
+              const Padding(
                   padding: EdgeInsets.only(top: 10),
                   child: Text(
                     'Let’s create a form',
@@ -215,18 +306,41 @@ class SampleCreateState extends State<SampleCreate> {
                   )),
               Container(
                   width: MediaQuery.of(context).size.width * 0.88,
-                  padding: EdgeInsets.only(top: 29, bottom: 5),
+                  padding: const EdgeInsets.only(top: 29, bottom: 5),
                   child: ListView(
                     primary: false,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     children: [
+                      // Padding(
+                      //   padding:
+                      //       EdgeInsets.only(left: 8, right: 8, top: 50, bottom: 15),
+                      //   child: SizedBox(
+                      //     width: MediaQuery.of(context).size.width * 0.88,
+                      //     height: MediaQuery.of(context).size.width * 0.14,
+                      //     child: TextField(
+                      //         textAlign: TextAlign.left,
+                      //         decoration: InputDecoration(
+                      //             hintText: 'Room Name',
+                      //             hintStyle:
+                      //                 TextStyle(fontFamily: 'Poppins', fontSize: 13),
+                      //             focusedBorder: OutlineInputBorder(
+                      //                 borderSide: BorderSide(
+                      //                     width: 3,
+                      //                     color: Color.fromARGB(161, 80, 195, 201)),
+                      //                 borderRadius: BorderRadius.circular(50)),
+                      //             filled: true,
+                      //             fillColor: Colors.white,
+                      //             border: OutlineInputBorder(
+                      //                 borderSide: BorderSide.none,
+                      //                 borderRadius: BorderRadius.circular(50)))),
+                      //   )),
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(75.0)),
                         ),
-                        padding: EdgeInsets.only(left: 10, right: 10),
+                        padding: const EdgeInsets.only(left: 10, right: 10),
                         height: 55, //gives the height of the dropdown button
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: DropdownButtonHideUnderline(
@@ -253,25 +367,55 @@ class SampleCreateState extends State<SampleCreate> {
                       if (!context.watch<NearbyService>().isSharing) ...[
                         Container(
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 248, 246, 246),
+                              color: const Color.fromARGB(255, 248, 246, 246),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(9)),
+                                  const BorderRadius.all(Radius.circular(9)),
                               boxShadow: [
                                 BoxShadow(
-                                  offset: Offset(0, 1),
+                                  offset: const Offset(0, 1),
                                   blurRadius: 5,
                                   color: Colors.black.withOpacity(0.3),
                                 ),
                               ],
                             ),
                             child: Padding(
-                                padding: EdgeInsets.only(
+                                padding: const EdgeInsets.only(
                                     left: 8.0,
                                     right: 8.0,
                                     top: 8.0,
                                     bottom: 8.0),
                                 child: Column(
                                   children: [
+                                    TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'Username',
+                                        labelStyle: TextStyle(
+                                        backgroundColor: Colors.white,
+                                        fontFamily: 'Poppins'),
+
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 5),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        borderSide: BorderSide(
+                                            width: 2,
+                                            color: Color.fromARGB(
+                                                161, 80, 195, 201))),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                      ),
+                                      initialValue: Provider.of<NearbyService>(context, listen: false).userName.toString(),
+                                      onChanged: (v) => Provider.of<NearbyService>(context, listen: false).userName=v,
+                                    ),
+                                    const SizedBox(height: 10),
                                     Focus(
                                         onFocusChange: (hasFocus) {
                                           setState(() => {
@@ -292,15 +436,15 @@ class SampleCreateState extends State<SampleCreate> {
                                                 fontFamily: 'Poppins'),
 
                                             contentPadding:
-                                                EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                     horizontal: 10,
                                                     vertical: 5),
-                                            border: OutlineInputBorder(
+                                            border: const OutlineInputBorder(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(10.0)),
                                               borderSide: BorderSide.none,
                                             ),
-                                            focusedBorder: OutlineInputBorder(
+                                            focusedBorder: const OutlineInputBorder(
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0)),
                                                 borderSide: BorderSide(
@@ -336,15 +480,15 @@ class SampleCreateState extends State<SampleCreate> {
                                                 backgroundColor: Colors.white,
                                                 fontFamily: 'Poppins'),
                                             contentPadding:
-                                                EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                     horizontal: 10,
                                                     vertical: 5),
-                                            border: OutlineInputBorder(
+                                            border: const OutlineInputBorder(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(10.0)),
                                               borderSide: BorderSide.none,
                                             ),
-                                            focusedBorder: OutlineInputBorder(
+                                            focusedBorder: const OutlineInputBorder(
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0)),
                                                 borderSide: BorderSide(
@@ -367,12 +511,12 @@ class SampleCreateState extends State<SampleCreate> {
                             return Card(
                                 child: Container(
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 248, 246, 246),
+                                color: const Color.fromARGB(255, 248, 246, 246),
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
+                                    const BorderRadius.all(Radius.circular(5)),
                                 boxShadow: [
                                   BoxShadow(
-                                    offset: Offset(0, 1),
+                                    offset: const Offset(0, 1),
                                     blurRadius: 5,
                                     color: Colors.black.withOpacity(0.3),
                                   ),
@@ -385,7 +529,8 @@ class SampleCreateState extends State<SampleCreate> {
                                     children: [
                                       Expanded(
                                         child: TextFormField(
-                                          decoration: InputDecoration(
+                                          controller: questionControllers[index],
+                                          decoration: const InputDecoration(
                                               labelText: 'Question Title',
                                               labelStyle: TextStyle(
                                                 fontFamily: 'Poppins',
@@ -413,6 +558,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                     Radius.circular(75.0)),
                                                 borderSide: BorderSide.none,
                                               )),
+                                              onChanged: (v) => setState(() => form["content"][index]["title"] = v),
                                         ),
                                       ),
                                       IconButton(
@@ -420,6 +566,7 @@ class SampleCreateState extends State<SampleCreate> {
                                         onPressed: () => setState(() {
                                           form["content"].removeAt(index);
                                           optionControllers.removeAt(index);
+                                          questionControllers.removeAt(index);
                                         }),
                                       ),
                                     ],
@@ -427,16 +574,16 @@ class SampleCreateState extends State<SampleCreate> {
                                   Row(
                                     children: [
                                       Padding(
-                                          padding: EdgeInsets.only(
+                                          padding: const EdgeInsets.only(
                                             top: 10,
                                           ),
                                           child: Container(
-                                              decoration: BoxDecoration(
+                                              decoration: const BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(75.0)),
                                               ),
-                                              padding: EdgeInsets.only(
+                                              padding: const EdgeInsets.only(
                                                   left: 10, right: 10),
                                               height:
                                                   55, //gives the height of the dropdown button
@@ -453,7 +600,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                           value: e.value,
                                                           child: Text(
                                                             e.name,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontFamily:
                                                                     'Poppins',
                                                                 fontSize: 15,
@@ -472,7 +619,7 @@ class SampleCreateState extends State<SampleCreate> {
                                   ),
                                   Row(
                                     children: [
-                                      Padding(
+                                      const Padding(
                                           padding: EdgeInsets.only(
                                             left: 10,
                                           ),
@@ -486,9 +633,9 @@ class SampleCreateState extends State<SampleCreate> {
                                           )),
                                       Switch(
                                         activeColor:
-                                            Color.fromARGB(212, 80, 195, 201),
+                                            const Color.fromARGB(212, 80, 195, 201),
                                         activeTrackColor:
-                                            Color.fromARGB(69, 80, 195, 201),
+                                            const Color.fromARGB(69, 80, 195, 201),
                                         inactiveThumbColor: Colors.grey,
                                         inactiveTrackColor: Colors.grey[400],
                                         // value: isChecked,
@@ -535,11 +682,11 @@ class SampleCreateState extends State<SampleCreate> {
                                                 onChanged: null,
                                                 fillColor: MaterialStateColor
                                                     .resolveWith((states) =>
-                                                        Color.fromARGB(
+                                                        const Color.fromARGB(
                                                             150, 80, 195, 201)),
                                                 focusColor: MaterialStateColor
                                                     .resolveWith((states) =>
-                                                        Color.fromARGB(
+                                                        const Color.fromARGB(
                                                             212, 80, 195, 201)),
                                               ),
                                             if (form["content"][index]
@@ -549,7 +696,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                   data: Theme.of(context)
                                                       .copyWith(
                                                     unselectedWidgetColor:
-                                                        Color.fromARGB(
+                                                        const Color.fromARGB(
                                                             255, 255, 255, 255),
                                                   ),
                                                   child: const Checkbox(
@@ -584,6 +731,8 @@ class SampleCreateState extends State<SampleCreate> {
                                                       .removeAt(index2));
                                                   optionControllers[index]
                                                       .removeAt(index2);
+                                                  questionControllers
+                                                      .removeAt(index2);
                                                 }),
                                           ],
                                         );
@@ -600,6 +749,8 @@ class SampleCreateState extends State<SampleCreate> {
                                                       [index]["options"]
                                                   .add(""));
                                               optionControllers[index]
+                                                  .add(TextEditingController());
+                                              questionControllers
                                                   .add(TextEditingController());
                                             },
                                             child: const Text("Add Option",
@@ -632,6 +783,7 @@ class SampleCreateState extends State<SampleCreate> {
                             optionControllers.add([
                               TextEditingController(text: "Option 1"),
                             ]);
+                            questionControllers.add(TextEditingController());
                           }),
                           child: const Text(
                             'Add Question',
@@ -646,14 +798,14 @@ class SampleCreateState extends State<SampleCreate> {
 
                       Text(
                           "Is open: ${context.watch<NearbyService>().isAdvertising}",
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 12.0,
                               letterSpacing: 1.2)),
                       // Text(const JsonEncoder.withIndent("  ").convert(form)),
 
                       Padding(
-                          padding: EdgeInsets.only(bottom: 15.0),
+                          padding: const EdgeInsets.only(bottom: 15.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -670,6 +822,13 @@ class SampleCreateState extends State<SampleCreate> {
                                         fontSize: 12.0,
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: 1.2)),
+                              ),
+                              ElevatedButton(
+                                style: flatButtonStyle,
+                                onPressed: () async {
+                                  NearbyService().writeJson(titleController.text, form);
+                                },
+                                child: const Text('Save'),
                               ),
                               ElevatedButton(
                                 style: flatButtonStyle,
@@ -701,32 +860,33 @@ class SampleCreateState extends State<SampleCreate> {
                   )),
 
               // Text(const JsonEncoder.withIndent(" ").convert(payloads)),
+              if(payloads[0].isNotEmpty) const Text(
+                "Responses",
+                style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 17.0,
+                    letterSpacing: 1.2),
+              ),
               ListView.builder(
                 itemCount: payloads.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, responseIndex) {
                   if (payloads[responseIndex].isEmpty ||
-                      !payloads[responseIndex].containsKey("content"))
+                      !payloads[responseIndex].containsKey("content")) {
                     return Container();
+                  }
                   return Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: Color.fromARGB(255, 248, 246, 246)),
                       child: Column(children: [
-                        Text(
-                          "Responses",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 17.0,
-                              letterSpacing: 1.2),
-                        ),
                         ExpansionTile(
                             // title: Text(payloads[responseIndex]["name"]),
                             onExpansionChanged: (expanded) {
                               setState(() {
                                 if (expanded) {
                                   _textColor =
-                                      Color.fromARGB(255, 80, 185, 201);
+                                      const Color.fromARGB(255, 80, 185, 201);
                                 } else {
                                   _textColor = Colors.black45;
                                 }
@@ -749,7 +909,7 @@ class SampleCreateState extends State<SampleCreate> {
                                         padding: const EdgeInsets.all(10),
                                         child: Text(
                                           "${payloads[responseIndex]["device_id"]}",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontFamily: 'Poppins',
                                             letterSpacing: 1.2,
                                           ),
@@ -770,22 +930,22 @@ class SampleCreateState extends State<SampleCreate> {
                                                 : const EdgeInsets.all(8),
                                             child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: Color.fromARGB(
+                                                  color: const Color.fromARGB(
                                                       255, 248, 246, 246),
                                                   borderRadius:
-                                                      BorderRadius.all(
+                                                      const BorderRadius.all(
                                                           Radius.circular(5)),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      offset: Offset(0, 1),
+                                                      offset: const Offset(0, 1),
                                                       blurRadius: 3,
-                                                      color: Color.fromARGB(
+                                                      color: const Color.fromARGB(
                                                               47, 0, 0, 0)
                                                           .withOpacity(0.3),
                                                     ),
                                                   ],
                                                 ),
-                                                padding: EdgeInsets.all(10.0),
+                                                padding: const EdgeInsets.all(10.0),
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -795,7 +955,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                     ['content']
                                                                 [questionIndex]
                                                             ["title"],
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontFamily:
                                                                 'Poppins',
                                                             fontSize: 14,
@@ -810,7 +970,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                 .value) ...[
                                                       Padding(
                                                           padding:
-                                                              EdgeInsets.only(
+                                                              const EdgeInsets.only(
                                                                   top: 10.0),
                                                           child: Text(
                                                             payloads[responseIndex]
@@ -819,7 +979,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                     [
                                                                     questionIndex]
                                                                 ["response"],
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontFamily:
                                                                     'Poppins',
                                                                 fontSize: 14,
@@ -870,18 +1030,11 @@ class SampleCreateState extends State<SampleCreate> {
                                                                         'selected'],
                                                                     onChanged:
                                                                         null,
-                                                                    fillColor: MaterialStateColor.resolveWith((states) =>
-                                                                        Color.fromARGB(
-                                                                            255,
-                                                                            80,
-                                                                            195,
-                                                                            201)),
-                                                                    focusColor:
-                                                                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 112, 238, 245)))
+                                                                    )
                                                               else
                                                                 Theme(
                                                                     data: ThemeData(
-                                                                        unselectedWidgetColor: Color.fromARGB(
+                                                                        unselectedWidgetColor: const Color.fromARGB(
                                                                             255,
                                                                             80,
                                                                             195,
@@ -895,13 +1048,13 @@ class SampleCreateState extends State<SampleCreate> {
                                                                               optionIndex),
                                                                       onChanged:
                                                                           null,
-                                                                      checkColor: Color.fromARGB(
+                                                                      checkColor: const Color.fromARGB(
                                                                           255,
                                                                           255,
                                                                           255,
                                                                           255), // color of tick Mark
                                                                       activeColor:
-                                                                          Color(
+                                                                          const Color(
                                                                               0xFF3BCBD2),
                                                                     )),
                                                               Text(
@@ -912,7 +1065,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                           'options']
                                                                       [
                                                                       optionIndex],
-                                                                  style: TextStyle(
+                                                                  style: const TextStyle(
                                                                       fontFamily:
                                                                           'Poppins',
                                                                       fontSize:
@@ -951,7 +1104,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                                         'options']
                                                                     .indexOf(e),
                                                                 child: Text(e,
-                                                                    style: TextStyle(
+                                                                    style: const TextStyle(
                                                                         fontFamily:
                                                                             'Poppins',
                                                                         fontSize:
@@ -972,30 +1125,31 @@ class SampleCreateState extends State<SampleCreate> {
                                 ),
                               ),
                             ]),
-                        Container(
-                            margin: EdgeInsets.all(25),
-                            padding: EdgeInsets.only(top: 28, bottom: 28),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.88,
-                              height: 60.0,
-                              child: ElevatedButton(
-                                style: flatButtonStyle,
-                                onPressed: () {
-                                  exportResponse();
-                                },
-                                child: Text(
-                                  "Export Responses",
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.2),
-                                ),
-                              ),
-                            ))
+                        
                       ]));
                 },
               ),
+              if(payloads[0].isNotEmpty) Container(
+                margin: const EdgeInsets.all(25),
+                padding: const EdgeInsets.only(top: 28, bottom: 28),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.88,
+                  height: 60.0,
+                  child: ElevatedButton(
+                    style: flatButtonStyle,
+                    onPressed: () {
+                      exportResponse();
+                    },
+                    child: const Text(
+                      "Export Responses",
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2),
+                    ),
+                  ),
+                )),
             ])))));
   }
 }

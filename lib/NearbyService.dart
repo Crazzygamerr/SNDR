@@ -7,6 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum QuestionTypes { singleLine, multiLine, multipleChoice, checkbox, dropdown }
 
@@ -51,7 +52,8 @@ class NearbyService with ChangeNotifier {
   // ExchangeType exchangeType = ExchangeType.none;
   bool isAdvertising = false, isDiscovering = false, isSharing = false;
   final Strategy strategy = Strategy.P2P_STAR;
-  final String userName = Random().nextInt(10000).toString();
+  String userName = Random().nextInt(10000).toString();
+  String? uuid;
 
   Map<String, String> foundDevices = {};
   Map<String, ConnectionInfo> connectedDevices = {};
@@ -60,6 +62,8 @@ class NearbyService with ChangeNotifier {
 
   Exception? error;
   CameraController? cameraController;
+  
+  Map<String,dynamic>? savedForm;
 
   Future<bool> requestPermissions() async {
     if (!await Nearby().checkLocationPermission()) {
@@ -117,7 +121,7 @@ class NearbyService with ChangeNotifier {
     }
   }
 
-  Future<bool> requestConnection(String key, String response) async {
+  Future<bool> requestConnection(String key, Map<String, dynamic> response) async {
     Nearby().requestConnection(
       userName,
       key,
@@ -134,9 +138,9 @@ class NearbyService with ChangeNotifier {
         if (status == Status.CONNECTED) {
           // connectedDevice?.endpointName = id;
           connectedDevices[id]?.endpointName = id;
-          await Nearby()
-              .sendBytesPayload(id, Uint8List.fromList(utf8.encode(response)));
-          if (response.contains('content')) {
+          response["uuid"] = uuid;
+          await Nearby().sendBytesPayload(id, Uint8List.fromList(utf8.encode(jsonEncode(response))));
+          if (response.containsKey('content')) {
             // payloads.removeAt(0);
             payloads[0]["sent"] = true;
           }
@@ -223,6 +227,12 @@ class NearbyService with ChangeNotifier {
               payload["type"] == "response") {
             if (payload.containsKey('content')) {
               payload["device_id"] = endid;
+              
+              // check if uuid is already in the list
+              // if (payloads.any((element) => element["uuid"] == payload["uuid"])) {
+              //   // if it is, replace it
+              //   payloads.removeWhere((element) => element["uuid"] == payload["uuid"]);
+              // }
               payloads.insert(0, payload);
               if (isAdvertising) {
                 await Nearby().sendBytesPayload(
@@ -453,5 +463,44 @@ class NearbyService with ChangeNotifier {
   //     return false;
   //   }
   // }
-
+  
+  Future<Map<String, dynamic>> readJson() async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    if (await file.exists()) {
+      String contents = await file.readAsString();
+      Map<String, dynamic> json = jsonDecode(contents);
+      return json;
+    } else {
+      return {};
+    }
+  }
+  
+  void writeJson(String title, Map<String, dynamic> form) async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    Map<String, dynamic> json;
+    if(!file.existsSync()) {
+      file.createSync();
+      json = {};
+    } else {
+      json = jsonDecode(file.readAsStringSync());
+    }
+    json[title] = form;
+    file.writeAsStringSync(jsonEncode(json));
+  }  
+  
+  Future<void> deleteJsonEntry(String key) async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    Map<String, dynamic> json;
+    if(!file.existsSync()) {
+      file.createSync();
+      json = {};
+    } else {
+      json = jsonDecode(file.readAsStringSync());
+    }
+    json.remove(key);
+    file.writeAsStringSync(jsonEncode(json));
+  }
 }
