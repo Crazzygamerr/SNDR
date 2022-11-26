@@ -300,6 +300,36 @@ class SampleCreateState extends State<SampleCreate> {
                                     bottom: 8.0),
                                 child: Column(
                                   children: [
+                                    TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'Username',
+                                        labelStyle: TextStyle(
+                                        backgroundColor: Colors.white,
+                                        fontFamily: 'Poppins'),
+
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 5),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        borderSide: BorderSide(
+                                            width: 2,
+                                            color: Color.fromARGB(
+                                                161, 80, 195, 201))),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                      ),
+                                      initialValue: Provider.of<NearbyService>(context, listen: false).userName.toString(),
+                                      onChanged: (v) => Provider.of<NearbyService>(context, listen: false).userName=v,
+                                    ),
+                                    const SizedBox(height: 10),
                                     Focus(
                                         onFocusChange: (hasFocus) {
                                           setState(() => {

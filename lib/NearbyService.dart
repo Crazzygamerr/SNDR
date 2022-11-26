@@ -51,7 +51,7 @@ class NearbyService with ChangeNotifier {
   // ExchangeType exchangeType = ExchangeType.none;
   bool isAdvertising = false, isDiscovering = false, isSharing = false;
   final Strategy strategy = Strategy.P2P_STAR;
-  final String userName = Random().nextInt(10000).toString();
+  String userName = Random().nextInt(10000).toString();
   String? uuid;
 
   Map<String, String> foundDevices = {};
