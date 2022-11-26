@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/NearbyService.dart';
 import 'package:sdl/main.dart';
 
 class CPSampleFormTypes extends StatefulWidget {
@@ -93,7 +94,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                       style: flatButtonStyle,
                       onPressed: () {
                         Provider.of<PageController>(context, listen: false)
-                            .jumpToPage(Pages.sampleCreateForm.index);
+                            .jumpToPage(Pages.savedForms.index);
                       },
                       child: const Text(
                         "EXISTING FORM",
@@ -115,7 +116,7 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                       style: flatButtonStyle,
                       onPressed: () {
                         Provider.of<PageController>(context, listen: false)
-                            .jumpToPage(Pages.sampleCreateForm.index);
+                            .jumpToPage(Pages.sampleCreate.index);
                       },
                       child: const Text(
                         "NEW FORM",
@@ -136,8 +137,26 @@ class CPSampleFormTypesState extends State<CPSampleFormTypes> {
                     child: ElevatedButton(
                       style: flatButtonStyle,
                       onPressed: () {
+                        Provider.of<NearbyService>(context, listen: false)
+                          .savedForm = {
+                            "type": "form",
+                            "title": "Attendance",
+                            "description": "Fill in your details",
+                            "content": [
+                              {
+                                "type": QuestionTypes.singleLine.value,
+                                "title": "Name",
+                                "options": ["Option 1"],
+                              },
+                              {
+                               "type": QuestionTypes.singleLine.value,
+                                "title": "Roll number",
+                                "options": ["Option 1"], 
+                              }
+                            ],
+                          };
                         Provider.of<PageController>(context, listen: false)
-                            .jumpToPage(Pages.sampleCreateForm.index);
+                            .jumpToPage(Pages.sampleCreate.index);
                       },
                       child: const Text(
                         "ATTENDANCE",

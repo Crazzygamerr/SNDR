@@ -147,8 +147,10 @@ class HomeState extends State<Home> {
                   child: ElevatedButton(
                     style: flatButtonStyle,
                     onPressed: () {
-                      Provider.of<PageController>(context, listen: false)
-                          .jumpToPage(Pages.sampleCreate.index);
+                      Provider.of<PageController>(context, listen: false).jumpToPage(
+                        // Pages.sampleCreate.index
+                        Pages.cpSampleFormTypes.index
+                      );
                     },
                     child: const Text(
                       "CREATE ROOM",

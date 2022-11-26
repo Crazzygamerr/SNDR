@@ -7,6 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum QuestionTypes { singleLine, multiLine, multipleChoice, checkbox, dropdown }
 
@@ -61,6 +62,8 @@ class NearbyService with ChangeNotifier {
 
   Exception? error;
   CameraController? cameraController;
+  
+  Map<String,dynamic>? savedForm;
 
   Future<bool> requestPermissions() async {
     if (!await Nearby().checkLocationPermission()) {
@@ -460,5 +463,44 @@ class NearbyService with ChangeNotifier {
   //     return false;
   //   }
   // }
-
+  
+  Future<Map<String, dynamic>> readJson() async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    if (await file.exists()) {
+      String contents = await file.readAsString();
+      Map<String, dynamic> json = jsonDecode(contents);
+      return json;
+    } else {
+      return {};
+    }
+  }
+  
+  void writeJson(String title, Map<String, dynamic> form) async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    Map<String, dynamic> json;
+    if(!file.existsSync()) {
+      file.createSync();
+      json = {};
+    } else {
+      json = jsonDecode(file.readAsStringSync());
+    }
+    json[title] = form;
+    file.writeAsStringSync(jsonEncode(json));
+  }  
+  
+  Future<void> deleteJsonEntry(String key) async {
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/saved.json');
+    Map<String, dynamic> json;
+    if(!file.existsSync()) {
+      file.createSync();
+      json = {};
+    } else {
+      json = jsonDecode(file.readAsStringSync());
+    }
+    json.remove(key);
+    file.writeAsStringSync(jsonEncode(json));
+  }
 }

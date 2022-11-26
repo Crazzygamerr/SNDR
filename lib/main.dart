@@ -9,6 +9,7 @@ import 'package:sdl/SampleCreateForm.dart';
 import 'package:sdl/SampleFrontend.dart';
 import 'package:sdl/SampleResponsePage.dart';
 import 'package:sdl/SampleRooms.dart';
+import 'package:sdl/savedForms.dart';
 
 void main() => runApp(const MyApp());
 
@@ -61,7 +62,9 @@ enum Pages {
   sampleCreate,
   cpSampleFormTypes,
   sampleRooms,
-  sampleResponsePage
+  sampleResponsePage,
+  
+  savedForms
 }
 
 // PageViewWidget
@@ -154,7 +157,9 @@ class PageViewWidgetState extends State<PageViewWidget> {
           SampleCreate(),
           CPSampleFormTypes(),
           SampleRooms(),
-          SampleResponsePage()
+          SampleResponsePage(),
+          
+          SavedForms()
         ],
       ),
     );

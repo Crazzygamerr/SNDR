@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/NearbyService.dart';
 import 'dart:developer' as developer;
 import 'package:sdl/main.dart';
 
@@ -16,17 +17,7 @@ final List<String> formType = ['Form', 'Share'];
 String? _formTypeSelected;
 
 class SampleCreateFormState extends State<SampleCreateForm> {
-  @override
-  void initState() {
-    super.initState();
-    super.activate();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
+  
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
     backgroundColor: Color(0XFF50C2C9),
     minimumSize: Size(88, 36),
