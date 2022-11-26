@@ -205,7 +205,7 @@ class ResponsePageState extends State<ResponsePage> {
                                 if(context.read<NearbyService>().payloads[0].containsKey("device_id")){
                                   NearbyService().requestConnection(
                                     context.read<NearbyService>().payloads[0]['device_id'].toString(),
-                                    jsonEncode(response)
+                                    response
                                   );
                                 }
                               },

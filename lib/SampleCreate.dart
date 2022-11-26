@@ -441,6 +441,7 @@ class SampleCreateState extends State<SampleCreate> {
                                                     Radius.circular(75.0)),
                                                 borderSide: BorderSide.none,
                                               )),
+                                              onChanged: (v) => setState(() => form["content"][index]["title"] = v),
                                         ),
                                       ),
                                       IconButton(

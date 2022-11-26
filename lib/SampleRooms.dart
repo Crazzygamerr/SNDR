@@ -158,7 +158,7 @@ class SampleRoomsState extends State<SampleRooms> {
                                     onTap: () {
                                       // connect to device
                                       NearbyService().requestConnection(
-                                          key, '{"type": "request"}'
+                                          key, {"type": "request"}
                                           // jsonEncode({
                                           //   "type": "request",
                                           //   "device_id": context.read<NearbyService>().userName,

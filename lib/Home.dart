@@ -2,7 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:sdl/NearbyService.dart';
 import 'package:sdl/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -16,6 +19,23 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     checkPermissions();
+    getUUID();
+  }
+  
+  void getUUID() async {
+    // check if uuid exists
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? uuid = prefs.getString('uuid');
+    if (uuid == null) {
+      // generate uuid
+      uuid = const Uuid().v4();
+      // save uuid
+      prefs.setString('uuid', uuid);
+    }
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NearbyService>(context, listen: false).uuid;
+    });
   }
 
   List<bool> permissions = [false, false, false, false];

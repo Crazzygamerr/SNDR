@@ -500,7 +500,8 @@ class SampleResponsePageState extends State<SampleResponsePage> {
                                                     .read<NearbyService>()
                                                     .payloads[0]['device_id']
                                                     .toString(),
-                                                jsonEncode(response));
+                                                response
+                                            );
                                           }
                                         },
                                         child: const Padding(
