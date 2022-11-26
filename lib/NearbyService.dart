@@ -229,10 +229,10 @@ class NearbyService with ChangeNotifier {
               payload["device_id"] = endid;
               
               // check if uuid is already in the list
-              if (payloads.any((element) => element["uuid"] == payload["uuid"])) {
-                // if it is, replace it
-                payloads.removeWhere((element) => element["uuid"] == payload["uuid"]);
-              }
+              // if (payloads.any((element) => element["uuid"] == payload["uuid"])) {
+              //   // if it is, replace it
+              //   payloads.removeWhere((element) => element["uuid"] == payload["uuid"]);
+              // }
               payloads.insert(0, payload);
               if (isAdvertising) {
                 await Nearby().sendBytesPayload(

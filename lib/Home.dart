@@ -25,6 +25,7 @@ class HomeState extends State<Home> {
   void getUUID() async {
     // check if uuid exists
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(Uuid().v4());
     String? uuid = prefs.getString('uuid');
     if (uuid == null) {
       // generate uuid
