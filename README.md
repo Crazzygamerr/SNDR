@@ -1,16 +1,34 @@
-# sdl
+# SNDR
 
-A new Flutter project.
+A peer-to-peer BLE data-sharing application, made with [Flutter](https://docs.flutter.dev/) and [Nearby Connections API](https://developers.google.com/nearby/connections/overview).
 
-## Getting Started
+## Setup
 
-This project is a starting point for a Flutter application.
+To build this project, you will need to have Flutter installed on your computer and an Android device. You can follow the below YouTube tutorial to complete setup and run the app.  
+https://www.youtube.com/watch?v=x0uinJvhNxI 
 
-A few resources to get you started if this is your first Flutter project:
+## Resources
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+GitHub Repo Link: https://github.com/Crazzygamerr/SDL
+Flutter Documentation: https://docs.flutter.dev/
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshots
+
+![Home Page]()
+
+![Create Form]()
+
+![Create Form]()
+
+![Response Page]()
+
+![Saved Forms]()
+
+![Rooms]()
+
+![Share screen]()
+
+![Recieved Responses]()
+
+![Camera]()
+
