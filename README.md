@@ -14,21 +14,19 @@ Flutter Documentation: https://docs.flutter.dev/
 
 ## Screenshots
 
-![Home Page]()
+![Home Page](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/home.jpg)
 
-![Create Form]()
+![Create Form](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/create.jpg)
 
-![Create Form]()
+![Recieved Responses](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/recieved response.jpg)
 
-![Response Page]()
+![Response Page](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/response.jpg)
 
-![Saved Forms]()
+![Saved Forms](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/saved.jpg)
 
-![Rooms]()
+![Rooms](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/rooms.jpg)
 
-![Share screen]()
+![Share screen](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/chat.jpg)
 
-![Recieved Responses]()
-
-![Camera]()
+![Camera](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/camera.jpg)
 
