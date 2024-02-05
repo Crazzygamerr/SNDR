@@ -13,20 +13,13 @@ GitHub Repo Link: https://github.com/Crazzygamerr/SDL
 Flutter Documentation: https://docs.flutter.dev/
 
 ## Screenshots
-
-![Home Page](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/home.jpg)
-
-![Create Form](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/create.jpg)
-
-![Recieved Responses](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/recieved response.jpg)
-
-![Response Page](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/response.jpg)
-
-![Saved Forms](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/saved.jpg)
-
-![Rooms](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/rooms.jpg)
-
-![Share screen](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/chat.jpg)
-
-![Camera](https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/camera.jpg)
-
+<div>
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/home.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/create.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/saved.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/response.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/recieved response.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/rooms.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/chat.jpg' width='250' />
+<img src='https://raw.githubusercontent.com/Crazzygamerr/SDL/main/screenshots/camera.jpg' width='250' />
+</div>
